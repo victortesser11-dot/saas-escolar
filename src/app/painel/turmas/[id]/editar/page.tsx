@@ -1,23 +1,24 @@
 import { Archive, Trash2 } from "lucide-react";
 import { Suspense } from "react";
 import { ConfirmAction } from "@/components/confirm-action";
+import { FormMessage } from "@/components/form/form-message";
 import { PageHeader } from "@/components/page-header";
 import { getClassDetail } from "@/lib/classes/queries";
 import { deleteClass, setClassArchived, updateClass } from "../../../actions";
 import { ClassForm } from "../../../_components/class-form";
 
-export default function EditClassPage({ params }: PageProps<"/painel/turmas/[id]/editar">) {
+type Props = PageProps<"/painel/turmas/[id]/editar">;
+
+export default function EditClassPage({ params, searchParams }: Props) {
   return (
     <Suspense fallback={<div className="h-40 animate-pulse rounded-md bg-muted" />}>
-      <EditClassContent params={params} />
+      <EditClassContent params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function EditClassContent({
-  params,
-}: Pick<PageProps<"/painel/turmas/[id]/editar">, "params">) {
-  const { id } = await params;
+async function EditClassContent({ params, searchParams }: Props) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const turma = await getClassDetail(id);
 
   return (
@@ -27,6 +28,13 @@ async function EditClassContent({
         back={{ href: `/painel/turmas/${turma.id}`, label: turma.name }}
         title="Editar turma"
       />
+
+      {query.erro === "com-provas" ? (
+        <FormMessage
+          type="error"
+          message="Esta turma tem provas aplicadas e não pode ser excluída, para preservar o histórico. Arquive-a em vez disso."
+        />
+      ) : null}
 
       <ClassForm
         action={updateClass.bind(null, turma.id)}

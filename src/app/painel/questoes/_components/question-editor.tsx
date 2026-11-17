@@ -55,10 +55,14 @@ export function QuestionEditor({
   initial,
   save,
   isNew,
+  cancelHref = "/painel/questoes",
+  saveLabel = "Salvar questão",
 }: {
   initial: QuestionEditorValues;
   save: SaveFn;
   isNew: boolean;
+  cancelHref?: string;
+  saveLabel?: string;
 }) {
   const [type, setType] = useState<QuestionType>(initial.type);
   const [stem, setStem] = useState(initial.stem);
@@ -321,7 +325,7 @@ export function QuestionEditor({
       <div className="flex flex-wrap items-center gap-2 border-t-[1.5px] border-dashed border-border pt-6">
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
-          Salvar questão
+          {saveLabel}
         </Button>
         {isNew ? (
           <Button
@@ -334,7 +338,7 @@ export function QuestionEditor({
             Salvar e criar outra
           </Button>
         ) : null}
-        <Link href="/painel/questoes" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+        <Link href={cancelHref} className={buttonVariants({ variant: "ghost", size: "lg" })}>
           Cancelar
         </Link>
       </div>

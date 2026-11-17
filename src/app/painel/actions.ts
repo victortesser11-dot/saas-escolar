@@ -96,7 +96,11 @@ export async function deleteClass(classId: string): Promise<void> {
   if (!isUuid(classId)) return;
   const supabase = await createClient();
   // Remove só a turma e os vínculos; os alunos continuam cadastrados no espaço.
-  await supabase.from("classes").delete().eq("id", classId);
+  const { error } = await supabase.from("classes").delete().eq("id", classId);
+  if (error?.code === "23503") {
+    // Turma com prova aplicada: o banco impede a exclusão (deve ser arquivada).
+    redirect(`${classPath(classId)}/editar?erro=com-provas`);
+  }
 
   revalidatePath("/painel", "layout");
   redirect("/painel");

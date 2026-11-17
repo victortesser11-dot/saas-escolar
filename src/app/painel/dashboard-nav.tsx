@@ -12,6 +12,11 @@ const ITEMS = [
       path === "/painel" || path.startsWith("/painel/turmas") || path.startsWith("/painel/alunos"),
   },
   {
+    href: "/painel/provas",
+    label: "Provas",
+    isActive: (path: string) => path.startsWith("/painel/provas"),
+  },
+  {
     href: "/painel/questoes",
     label: "Questões",
     isActive: (path: string) => path.startsWith("/painel/questoes"),

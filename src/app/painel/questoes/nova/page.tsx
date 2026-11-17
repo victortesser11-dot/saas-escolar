@@ -40,7 +40,7 @@ async function NewQuestionContent({
       <QuestionEditor
         key={`${savedMarker ?? "inicio"}-${type}`}
         isNew
-        save={saveQuestion.bind(null, null)}
+        save={saveQuestion.bind(null, null, null)}
         initial={{ type, stem: "", explanation: "", points: 1, tags: [], options: [] }}
       />
     </div>

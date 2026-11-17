@@ -460,3 +460,10 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | `status` (rascunho/aprovada) e `source` (manual/importação/IA) já no modelo | Preparação para a geração por IA com revisão do professor |
 | 2026-11-17 | Exclusão de questão é definitiva por enquanto | Quando as provas existirem (Etapa 4), questões usadas ficarão protegidas pela cópia congelada na prova |
 | 2026-11-17 | Componentes cliente que leem a URL (`usePathname`) ficam dentro de `<Suspense>` | Exigência do Next 16 para rotas dinâmicas; só o build de produção acusa |
+| 2026-11-17 | **Etapa 4 — fluxo "prova primeiro"** (pedido do responsável pelo produto): questões escritas dentro da prova; o banco é preenchido automaticamente | Modelo mental do professor é "estou fazendo uma prova"; o banco segue disponível para reuso |
+| 2026-11-17 | Prova **sem** `class_id`; nova tabela `exam_assignments` (prova × turma) com período, `public_code` (8 caracteres sem ambíguos) e `access_code` opcional (4 dígitos) | Uma prova aplicada em várias turmas, cada uma com seu horário e link. Substitui o `exams.class_id` da seção 8 |
+| 2026-11-17 | Publicação (`publish_exam`) copia enunciado/alternativas para `exam_questions.content` e o gabarito para `answer_key`; respostas aceitas da resposta curta só no gabarito | Prova publicada imutável; o aluno nunca recebe respostas aceitas |
+| 2026-11-17 | Travas por trigger: prova publicada não muda questões, valores nem regras; gravação da cópia congelada só por funções do banco (checagem por `current_user`, não forjável pelo cliente) | Integridade (RN-10, RN-11) |
+| 2026-11-17 | Voltar a rascunho apenas sem nenhuma aplicação; aplicação só removível antes de abrir | Evita turma com link para prova não publicada |
+| 2026-11-17 | FKs `RESTRICT`: questão usada em prova e turma com prova aplicada não podem ser excluídas | Preserva histórico e resultados |
+| 2026-11-17 | Datas exibidas no fuso do navegador (com fallback de Brasília no servidor); campos `datetime-local` convertidos para ISO no navegador | O Brasil tem vários fusos |

@@ -69,6 +69,78 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"exam_assignments": {
+                  Row: {
+                    "access_code": string | null,"class_id": string,"closed_at": string | null,"closes_at": string,"created_at": string,"exam_id": string,"id": string,"opens_at": string,"public_code": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "access_code"?: string | null,"class_id": string,"closed_at"?: string | null,"closes_at": string,"created_at"?: string,"exam_id": string,"id"?: string,"opens_at": string,"public_code"?: string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "access_code"?: string | null,"class_id"?: string,"closed_at"?: string | null,"closes_at"?: string,"created_at"?: string,"exam_id"?: string,"id"?: string,"opens_at"?: string,"public_code"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exam_assignments_workspace_id_class_id_fkey"
+      columns: ["workspace_id","class_id"]
+isOneToOne: false
+      referencedRelation: "classes"
+      referencedColumns: ["workspace_id","id"]
+    },{
+      foreignKeyName: "exam_assignments_workspace_id_exam_id_fkey"
+      columns: ["workspace_id","exam_id"]
+isOneToOne: false
+      referencedRelation: "exams"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"exam_questions": {
+                  Row: {
+                    "answer_key": Json | null,"content": Json | null,"created_at": string,"exam_id": string,"id": string,"points": number,"position": number,"question_id": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answer_key"?: Json | null,"content"?: Json | null,"created_at"?: string,"exam_id": string,"id"?: string,"points": number,"position": number,"question_id": string,"workspace_id": string
+                  }
+                  Update: {
+                    "answer_key"?: Json | null,"content"?: Json | null,"created_at"?: string,"exam_id"?: string,"id"?: string,"points"?: number,"position"?: number,"question_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exam_questions_workspace_id_exam_id_fkey"
+      columns: ["workspace_id","exam_id"]
+isOneToOne: false
+      referencedRelation: "exams"
+      referencedColumns: ["workspace_id","id"]
+    },{
+      foreignKeyName: "exam_questions_workspace_id_question_id_fkey"
+      columns: ["workspace_id","question_id"]
+isOneToOne: false
+      referencedRelation: "questions"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"exams": {
+                  Row: {
+                    "created_at": string,"description": string | null,"id": string,"instructions": string | null,"owner_id": string | null,"published_at": string | null,"questions_per_attempt": number | null,"result_visibility": Database["public"]['Enums']["result_visibility"],"shuffle_options": boolean,"shuffle_questions": boolean,"status": Database["public"]['Enums']["exam_status"],"time_limit_minutes": number | null,"title": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"time_limit_minutes"?: number | null,"title": string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"time_limit_minutes"?: number | null,"title"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exams_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "created_at": string,"full_name": string,"id": string,"updated_at": string
@@ -183,15 +255,27 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "import_students":
+            "add_questions_to_exam":
+{ Args: { "p_exam_id": string,"p_question_ids": (string)[] }; Returns: number
+                           },
+"import_students":
 { Args: { "p_class_id": string,"p_students": Json }; Returns: Json
+                           },
+"move_exam_question":
+{ Args: { "p_direction": number,"p_exam_question_id": string }; Returns: undefined
+                           },
+"publish_exam":
+{ Args: { "p_exam_id": string }; Returns: undefined
                            },
 "save_question":
 { Args: { "p_explanation": string,"p_options": Json,"p_points": number,"p_question_id": string,"p_stem": string,"p_tags": (string)[],"p_type": Database["public"]['Enums']["question_type"],"p_workspace_id": string }; Returns: string
+                           },
+"unpublish_exam":
+{ Args: { "p_exam_id": string }; Returns: undefined
                            }
           }
           Enums: {
-            "question_source": "manual"|"import"|"ai","question_status": "draft"|"approved","question_type": "single_choice"|"true_false"|"multiple_choice"|"short_answer"|"essay","workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
+            "exam_status": "draft"|"published","question_source": "manual"|"import"|"ai","question_status": "draft"|"approved","question_type": "single_choice"|"true_false"|"multiple_choice"|"short_answer"|"essay","result_visibility": "score_only"|"score_and_key","workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -311,7 +395,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "question_source": ["manual", "import", "ai"],"question_status": ["draft", "approved"],"question_type": ["single_choice", "true_false", "multiple_choice", "short_answer", "essay"],"workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
+            "exam_status": ["draft", "published"],"question_source": ["manual", "import", "ai"],"question_status": ["draft", "approved"],"question_type": ["single_choice", "true_false", "multiple_choice", "short_answer", "essay"],"result_visibility": ["score_only", "score_and_key"],"workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
           }
         }
 } as const

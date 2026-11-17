@@ -6,6 +6,10 @@ import { PageHeader } from "@/components/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { pluralize } from "@/lib/classes/messages";
 import { getClassDetail } from "@/lib/classes/queries";
+import { LocalDateTime } from "@/components/local-date-time";
+import { StatusChip } from "@/components/status-chip";
+import { listClassAssignments } from "@/lib/exams/queries";
+import { ASSIGNMENT_STATUS_LABEL, assignmentStatus } from "@/lib/exams/rules";
 import { addStudentToClass, setClassArchived } from "../../actions";
 import { AddStudentForm } from "./add-student-form";
 import { StudentTable } from "./student-table";
@@ -20,7 +24,8 @@ export default function ClassPage({ params }: PageProps<"/painel/turmas/[id]">) 
 
 async function ClassContent({ params }: Pick<PageProps<"/painel/turmas/[id]">, "params">) {
   const { id } = await params;
-  const turma = await getClassDetail(id);
+  const [turma, assignments] = await Promise.all([getClassDetail(id), listClassAssignments(id)]);
+  const now = new Date();
   const archived = turma.archivedAt !== null;
 
   return (
@@ -77,6 +82,33 @@ async function ClassContent({ params }: Pick<PageProps<"/painel/turmas/[id]">, "
           <AddStudentForm action={addStudentToClass.bind(null, turma.id)} />
         </section>
       )}
+
+      {assignments.length > 0 ? (
+        <section aria-labelledby="provas-turma-titulo" className="grid gap-3">
+          <h2 id="provas-turma-titulo" className="text-lg font-semibold">
+            Provas desta turma
+          </h2>
+          <ul className="grid gap-2">
+            {assignments.map((a) => {
+              const status = assignmentStatus(a, now);
+              return (
+                <li key={a.id}>
+                  <Link
+                    href={`/painel/provas/${a.examId}`}
+                    className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-md border-[1.5px] border-border bg-card px-4 py-3 outline-none hover:border-foreground focus-visible:ring-4 focus-visible:ring-ring"
+                  >
+                    <span className="font-medium">{a.examTitle}</span>
+                    <span className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <LocalDateTime iso={a.opensAt} />
+                      <StatusChip tone={status}>{ASSIGNMENT_STATUS_LABEL[status]}</StatusChip>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       <section aria-labelledby="alunos-titulo" className="grid gap-3">
         <h2 id="alunos-titulo" className="text-lg font-semibold">

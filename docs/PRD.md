@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.3 |
+| Versão | 0.4 |
 | Data | 2026-11-17 |
 | Status | Aprovado — em desenvolvimento (Etapa 1) |
 | Fontes | [`PROMPT_01.md`](./PROMPT_01.md) · Complemento "Regras de funcionamento das provas" (Etapa 2) |
@@ -41,10 +41,12 @@ Plataforma SaaS para professores **criarem, aplicarem e corrigirem provas digita
 
 ## 3. Fluxo principal
 
-1. Professor cria a prova e associa questões (banco da prova).
-2. Define quantidade de questões aplicadas, valor de cada questão, tempo e regras de exibição de resultado.
-3. Revisa a pontuação total e publica.
-4. Disponibiliza o link público.
+Fluxo "prova primeiro" (decidido em 2026-11-17, ver seção 4.1):
+
+1. Professor cria a prova e escreve as questões dentro dela (ou traz questões do seu banco).
+2. Define o valor de cada questão, quantas questões cada aluno recebe, tempo e o que o aluno vê no fim.
+3. Revisa o resumo (nota máxima, tempo, correção manual) e publica: conteúdo, valores e regras ficam travados.
+4. Aplica a prova em uma ou mais turmas: cada turma recebe link próprio, período e código de acesso opcional.
 5. Aluno acessa pelo celular e informa nome e matrícula (sem conta).
 6. O sistema gera a aplicação individual (sorteio de questões e de alternativas) e inicia o tempo.
 7. Aluno responde; respostas são salvas no servidor à medida que são marcadas.
@@ -74,6 +76,15 @@ Escola
 
 > Proposta técnica (pendente de aprovação): tratar professor independente e escola como o mesmo conceito
 > de "espaço de trabalho" (tenant). Ver `ARQUITETURA.md`, seção 4.
+
+### 4.1 Prova primeiro, banco por trás (decisão de 2026-11-17)
+
+- **A prova é o centro.** O professor escreve as questões dentro da prova, com o mesmo editor do banco.
+- **O banco de questões é automático.** Toda questão escrita numa prova também fica no banco, para reutilizar em outras provas ("Trazer do banco"). Organização pelos assuntos (tags) e pela própria prova; não há uma camada extra de "categorias".
+- **Uma prova, várias turmas.** A prova não pertence a uma turma: ela é *aplicada* em turmas. Cada aplicação tem link, período e código de acesso próprios, e os resultados ficam vinculados à turma da aplicação.
+- **Publicação congela a prova.** Na publicação, cada questão é copiada (enunciado, alternativas e gabarito). Editar o banco depois não altera provas publicadas.
+- **Voltar a rascunho** só enquanto a prova não foi aplicada em nenhuma turma.
+- Questão usada em prova não pode ser excluída do banco; turma com prova aplicada não pode ser excluída (deve ser arquivada).
 
 ## 5. Requisitos funcionais — MVP
 
@@ -321,3 +332,4 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | 0.1 | 2026-11-17 | Criação a partir do Prompt 1. |
 | 0.2 | 2026-11-17 | Incorporado o complemento "Regras de funcionamento das provas": sorteio, alternativas, pontuação, tipos de questão, tempo, retomada, tentativas, exibição de resultado, problemas de conexão, painel de controle e segurança. Adicionados RF-29 a RF-52, regras de negócio (RN-01 a RN-31), RNFs numerados, LGPD e novas questões em aberto. |
 | 0.3 | 2026-11-17 | Decididas Q-01 a Q-09 e Q-11 conforme propostas; login por e-mail/senha e Google; código de acesso opcional por prova. Q-10 segue em aberto. |
+| 0.4 | 2026-11-17 | Fluxo "prova primeiro": questões escritas dentro da prova (banco automático por trás); prova aplicada em várias turmas, cada uma com link, período e código próprios (seção 4.1). |
