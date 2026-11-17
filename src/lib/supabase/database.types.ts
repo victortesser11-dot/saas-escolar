@@ -23,7 +23,53 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "profiles": {
+            "class_students": {
+                  Row: {
+                    "class_id": string,"created_at": string,"student_id": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "class_id": string,"created_at"?: string,"student_id": string,"workspace_id": string
+                  }
+                  Update: {
+                    "class_id"?: string,"created_at"?: string,"student_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "class_students_workspace_id_class_id_fkey"
+      columns: ["workspace_id","class_id"]
+isOneToOne: false
+      referencedRelation: "classes"
+      referencedColumns: ["workspace_id","id"]
+    },{
+      foreignKeyName: "class_students_workspace_id_student_id_fkey"
+      columns: ["workspace_id","student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"classes": {
+                  Row: {
+                    "archived_at": string | null,"created_at": string,"id": string,"name": string,"school_year": number | null,"teacher_id": string | null,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name": string,"school_year"?: number | null,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name"?: string,"school_year"?: number | null,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "classes_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
                   Row: {
                     "created_at": string,"full_name": string,"id": string,"updated_at": string
                   }
@@ -36,6 +82,26 @@ export type Database = {
                   }
                   Relationships: [
                     
+                  ]
+                },"students": {
+                  Row: {
+                    "created_at": string,"full_name": string,"id": string,"registration_code": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"full_name": string,"id"?: string,"registration_code": string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"full_name"?: string,"id"?: string,"registration_code"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "students_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"workspace_members": {
                   Row: {
@@ -77,7 +143,9 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            [_ in never]: never
+            "import_students":
+{ Args: { "p_class_id": string,"p_students": Json }; Returns: Json
+                           }
           }
           Enums: {
             "workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
