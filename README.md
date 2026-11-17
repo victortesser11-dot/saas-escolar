@@ -18,9 +18,16 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS · shadcn/ui · Supa
 
 ```bash
 npm install
-cp .env.example .env.local   # preencha os valores
+npm run db:start             # sobe o Supabase local (Docker) e aplica as migrations
+cp .env.example .env.local   # preencha com os valores de `npx supabase status`
 npm run dev                  # http://localhost:3000
 ```
+
+Serviços locais:
+
+- Painel do banco (Supabase Studio): http://127.0.0.1:54323
+- Caixa de e-mails de teste (Mailpit): http://127.0.0.1:54324 — confirmações de cadastro e
+  redefinições de senha chegam aqui; nenhum e-mail sai do computador.
 
 ## Scripts
 

@@ -2,9 +2,9 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.2 |
+| Versão | 0.3 |
 | Data | 2026-11-17 |
-| Status | Aguardando aprovação da proposta técnica |
+| Status | Aprovado — em desenvolvimento (Etapa 1) |
 | Fontes | [`PROMPT_01.md`](./PROMPT_01.md) · Complemento "Regras de funcionamento das provas" (Etapa 2) |
 | Documentos relacionados | [`ARQUITETURA.md`](./ARQUITETURA.md) (proposta técnica, pendente de aprovação) |
 
@@ -163,7 +163,7 @@ Escola
 - RN-09 A pontuação de cada questão é definida antes da publicação; a prova não pode ser publicada sem ela.
 - RN-10 O valor de cada questão é congelado na aplicação no momento do sorteio; alterações posteriores não modificam aplicações já iniciadas ou concluídas.
 - RN-11 Alterações de pontuação após o início das aplicações exigem procedimento administrativo e ficam registradas.
-- RN-12 **[EM ABERTO]** Quando o professor sorteia um subconjunto de questões com valores diferentes, alunos podem ter totais diferentes. Ver questão Q-01.
+- RN-12 Se a prova sorteia um subconjunto do banco da prova, todas as questões desse banco devem ter o mesmo valor (validado antes da publicação). Ver Q-01.
 
 ### 6.4 Tempo
 - RN-13 O controle do tempo é feito pelo servidor; o cronômetro do aluno é apenas exibição.
@@ -179,7 +179,7 @@ Escola
 - RN-21 Falhas de conexão nunca geram automaticamente uma nova tentativa.
 - RN-22 Respostas já recebidas pelo servidor nunca são descartadas por falha técnica.
 - RN-23 Envios repetidos da mesma aplicação são tratados como um único envio (idempotência).
-- RN-24 **[EM ABERTO]** Definição exata de "interrupção" (recarregar a página no mesmo aparelho conta como interrupção?). Ver questão Q-02.
+- RN-24 Recarregar a página na mesma aba continua a aplicação (com registro do evento); acesso por outro aparelho ou navegador é interrupção e aguarda o professor. Ver Q-02.
 
 ### 6.6 Resultado e gabarito
 - RN-25 O que é exibido após o envio segue a configuração da prova (somente nota / nota + respostas corretas).
@@ -296,21 +296,23 @@ Requisito: a arquitetura deve suportar limites por plano desde o início.
 - Documentar decisões relevantes.
 - Autorização prévia para operações destrutivas, instalações, criação de projetos externos e publicação em produção.
 
-## 14. Questões em aberto
+## 14. Questões em aberto e decisões
 
-| # | Questão | Proposta (ver `ARQUITETURA.md`) |
+Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técnicas).
+
+| # | Questão | Decisão |
 |---|---|---|
-| Q-01 | Sorteio de subconjunto com questões de valores diferentes gera totais diferentes por aluno. Como tratar? | Se o banco da prova for maior que a quantidade aplicada, exigir valor igual entre as questões; valores livres quando todas as questões forem aplicadas. |
-| Q-02 | Recarregar a página no mesmo aparelho/navegador conta como interrupção? | Mesmo navegador continua (registrando o evento); outro aparelho ou navegador bloqueia e aguarda o professor. |
-| Q-03 | Ao liberar retomada, o tempo continua contando de onde estava ou o professor pode estender? | Prazo original mantido; professor pode adicionar minutos na liberação. |
-| Q-04 | Quando há várias tentativas, qual nota vale? | A da última tentativa liberada; anteriores ficam no histórico. |
-| Q-05 | Seleção múltipla: pontuação tudo-ou-nada ou parcial? | Tudo-ou-nada no MVP. |
-| Q-06 | O aluno precisa estar cadastrado na turma para fazer a prova? | Sim: matrícula validada contra a lista da turma. |
-| Q-07 | Exigir um código de acesso exibido em sala para evitar que alguém faça a prova de fora? | Opcional por prova (sugestão, não incluída no escopo sem aprovação). |
-| Q-08 | Questões com imagem no MVP? | Fora do MVP (impacto em armazenamento e tráfego gratuitos). |
-| Q-09 | Login do professor: e-mail/senha, Google ou ambos? | Ver ARQUITETURA, seção 6 (envio de e-mail exige SMTP próprio). |
-| Q-10 | Limites concretos dos planos gratuito/pagos. | Definir antes do lançamento comercial. |
-| Q-11 | Importação de alunos: CSV ou também XLSX? | CSV no MVP. |
+| Q-01 | Sorteio de subconjunto com questões de valores diferentes gera totais diferentes por aluno. Como tratar? | ✅ Se o banco da prova for maior que a quantidade aplicada, exigir valor igual entre as questões; valores livres quando todas as questões forem aplicadas. |
+| Q-02 | Recarregar a página no mesmo aparelho/navegador conta como interrupção? | ✅ Mesmo navegador (mesma aba) continua, registrando o evento; outro aparelho ou navegador bloqueia e aguarda o professor. |
+| Q-03 | Ao liberar retomada, o tempo continua contando de onde estava ou o professor pode estender? | ✅ Prazo original mantido; o professor pode adicionar minutos na liberação. |
+| Q-04 | Quando há várias tentativas, qual nota vale? | ✅ A da última tentativa liberada; anteriores ficam no histórico. |
+| Q-05 | Seleção múltipla: pontuação tudo-ou-nada ou parcial? | ✅ Tudo-ou-nada no MVP. |
+| Q-06 | O aluno precisa estar cadastrado na turma para fazer a prova? | ✅ Sim: matrícula validada contra a lista da turma. |
+| Q-07 | Exigir um código de acesso exibido em sala para evitar que alguém faça a prova de fora? | ✅ Código de acesso **opcional**, configurável por prova. |
+| Q-08 | Questões com imagem no MVP? | ✅ Fora do MVP (impacto em armazenamento e tráfego gratuitos). |
+| Q-09 | Login do professor: e-mail/senha, Google ou ambos? | ✅ Ambos. E-mail/senha implementado; Google depende de credenciais OAuth (Google Cloud). |
+| Q-10 | Limites concretos dos planos gratuito/pagos. | ⏳ Em aberto — definir antes do lançamento comercial. |
+| Q-11 | Importação de alunos: CSV ou também XLSX? | ✅ CSV no MVP. |
 
 ## 15. Histórico de alterações
 
@@ -318,3 +320,4 @@ Requisito: a arquitetura deve suportar limites por plano desde o início.
 |---|---|---|
 | 0.1 | 2026-11-17 | Criação a partir do Prompt 1. |
 | 0.2 | 2026-11-17 | Incorporado o complemento "Regras de funcionamento das provas": sorteio, alternativas, pontuação, tipos de questão, tempo, retomada, tentativas, exibição de resultado, problemas de conexão, painel de controle e segurança. Adicionados RF-29 a RF-52, regras de negócio (RN-01 a RN-31), RNFs numerados, LGPD e novas questões em aberto. |
+| 0.3 | 2026-11-17 | Decididas Q-01 a Q-09 e Q-11 conforme propostas; login por e-mail/senha e Google; código de acesso opcional por prova. Q-10 segue em aberto. |

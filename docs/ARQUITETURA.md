@@ -434,3 +434,14 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | Supabase CLI como dependência de desenvolvimento (`npx supabase`) | Evita instalação global |
 | 2026-11-17 | CI no GitHub Actions com Node 24 (LTS) | `engines.node >= 24`; roda lint, tipos, formatação, testes unitários e E2E |
 | 2026-11-17 | 4 alertas `npm audit` moderados aceitos temporariamente | Vêm da CLI do shadcn (`minimatch` via `ts-morph`), ferramenta de desenvolvimento; não entram no bundle. Reavaliar a cada atualização do shadcn |
+| 2026-11-17 | `vercel.json`: `git.deploymentEnabled.main = false` | Nenhum push na `main` publica em produção sem aprovação. O MCP da Vercel chegou a criar um deploy de produção ao vincular o projeto (cancelado antes de concluir) |
+| 2026-11-17 | Docker Desktop + WSL2 para o Supabase local | Testes de RLS (pgTAP), e-mails no Mailpit e migrations sem tocar no banco remoto |
+| 2026-11-17 | **Etapa 1:** tenant = `workspaces`; funções de autorização no schema `private` (não exposto pela API) com `SECURITY DEFINER` | Evita recursão de RLS e exposição das funções; `plan`/`type` sem permissão de UPDATE para usuários |
+| 2026-11-17 | Papel `anon` sem nenhum privilégio em tabelas | Alunos usarão apenas funções RPC (Etapa 5) |
+| 2026-11-17 | Login por e-mail/senha com confirmação obrigatória; Google preparado e oculto por `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED` até haver credenciais | Decisão Q-09 |
+| 2026-11-17 | Links de e-mail com `token_hash` (`/auth/confirm`) e templates em português | Funcionam mesmo se o e-mail for aberto em outro aparelho; o fluxo PKCE padrão falharia nesse caso |
+| 2026-11-17 | Senha mínima de 8 caracteres | Alinhado entre `config.toml` e a validação Zod. **Aplicar também no projeto remoto** |
+| 2026-11-17 | `proxy.ts` (antigo middleware) faz só verificação otimista; autorização real em `getCurrentUser` (camada de dados) + RLS | Padrão recomendado por Next.js e Supabase (`getClaims`, nunca `getSession` no servidor) |
+| 2026-11-17 | `getCurrentUser` chama `connection()` | O Next 16 (Cache Components/Partial Prefetching) não permite leitura do relógio na pré-renderização; o cliente Supabase consulta a validade do token |
+| 2026-11-17 | Respostas de cadastro e recuperação de senha idênticas para e-mails existentes e inexistentes | Evita enumeração de contas |
+| 2026-11-17 | CI sobe o Supabase local (Docker) e roda lint do banco, pgTAP e Playwright | Mesma validação do ambiente local em cada push |

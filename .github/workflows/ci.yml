@@ -28,8 +28,8 @@ jobs:
       - run: npm run format:check
       - run: npm test
 
-  e2e:
-    name: Testes E2E
+  database-e2e:
+    name: Banco (pgTAP) e testes E2E
     runs-on: ubuntu-latest
     needs: quality
     steps:
@@ -39,6 +39,25 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+
+      # Supabase local em Docker, apenas com os serviços usados pelos testes.
+      - name: Iniciar Supabase local
+        run: npx supabase start -x studio,imgproxy,vector,logflare,edge-runtime,realtime,storage-api,postgres-meta,supavisor
+      - name: Lint do banco
+        run: npx supabase db lint --level warning --fail-on warning
+      - name: Testes do banco (RLS)
+        run: npx supabase test db
+
+      - name: Configurar variáveis locais
+        run: |
+          eval "$(npx supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000"
+            echo "NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=false"
+          } > .env.local
+
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
