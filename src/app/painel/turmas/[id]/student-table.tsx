@@ -14,7 +14,7 @@ export function StudentTable({
   readOnly: boolean;
 }) {
   return (
-    <div className="overflow-x-auto rounded-md border-[1.5px] border-border bg-card">
+    <div className="relative overflow-x-auto rounded-md border-[1.5px] border-border bg-card">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b-[1.5px] border-foreground text-left">

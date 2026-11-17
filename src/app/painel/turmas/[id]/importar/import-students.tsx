@@ -134,7 +134,7 @@ export function ImportStudents({
         ) : null}
 
         {rows.length > 0 ? (
-          <div className="overflow-x-auto rounded-md border-[1.5px] border-border bg-card">
+          <div className="relative overflow-x-auto rounded-md border-[1.5px] border-border bg-card">
             <table className="w-full min-w-[28rem] border-collapse text-sm">
               <thead>
                 <tr className="border-b-[1.5px] border-foreground text-left">

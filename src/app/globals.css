@@ -39,6 +39,7 @@
   --color-mark: var(--mark);
   --color-pen: var(--pen);
   --color-ok: var(--ok);
+  --color-warn: var(--warn);
   --radius-sm: calc(var(--radius) * 0.75);
   --radius-md: var(--radius);
   --radius-lg: var(--radius);
@@ -57,7 +58,8 @@
   --ink: #1b1d1a; /* grafite */
   --mark: #ffe45c; /* marca-texto */
   --pen: #d23b2a; /* caneta vermelha de correção */
-  --ok: #2f6b4f; /* verde de "certo" */
+  --ok: #1f7a4a; /* verde de "certo" (validado: croma e contraste) */
+  --warn: #b8860b; /* âmbar de "atenção" (status; sempre com rótulo) */
 
   /* Mapeamento para os componentes shadcn/ui */
   --background: var(--paper);

@@ -312,6 +312,12 @@ function AssignmentsSection({ exam, now }: { exam: ExamDetail; now: Date }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-border pt-3">
+                  <Link
+                    href={`/painel/provas/${exam.id}/turmas/${assignment.id}`}
+                    className={buttonVariants({ size: "sm" })}
+                  >
+                    Acompanhar e notas
+                  </Link>
                   {status !== "closed" ? <CopyButton path={path} /> : null}
                   {status === "open" ? (
                     <ConfirmAction

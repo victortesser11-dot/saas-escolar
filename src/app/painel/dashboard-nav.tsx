@@ -17,6 +17,11 @@ const ITEMS = [
     isActive: (path: string) => path.startsWith("/painel/provas"),
   },
   {
+    href: "/painel/notas",
+    label: "Notas",
+    isActive: (path: string) => path.startsWith("/painel/notas"),
+  },
+  {
     href: "/painel/questoes",
     label: "Questões",
     isActive: (path: string) => path.startsWith("/painel/questoes"),
@@ -38,7 +43,7 @@ export function DashboardNavFallback() {
 
 function NavLinks({ pathname }: { pathname: string | null }) {
   return (
-    <nav aria-label="Seções do painel" className="flex gap-1">
+    <nav aria-label="Seções do painel" className="flex gap-0.5 sm:gap-1">
       {ITEMS.map((item) => {
         const active = pathname !== null && item.isActive(pathname);
         return (
@@ -47,13 +52,16 @@ function NavLinks({ pathname }: { pathname: string | null }) {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative rounded-sm px-3 py-2 text-sm font-medium outline-none focus-visible:ring-4 focus-visible:ring-ring",
+              "relative rounded-sm px-2 py-2 text-sm font-medium outline-none focus-visible:ring-4 focus-visible:ring-ring sm:px-3",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
             {item.label}
             {active ? (
-              <span aria-hidden className="absolute inset-x-3 -bottom-px h-[3px] bg-mark" />
+              <span
+                aria-hidden
+                className="absolute inset-x-2 -bottom-px h-[3px] bg-mark sm:inset-x-3"
+              />
             ) : null}
           </Link>
         );

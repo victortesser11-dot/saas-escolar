@@ -85,16 +85,24 @@ async function ClassContent({ params }: Pick<PageProps<"/painel/turmas/[id]">, "
 
       {assignments.length > 0 ? (
         <section aria-labelledby="provas-turma-titulo" className="grid gap-3">
-          <h2 id="provas-turma-titulo" className="text-lg font-semibold">
-            Provas desta turma
-          </h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="provas-turma-titulo" className="text-lg font-semibold">
+              Provas desta turma
+            </h2>
+            <Link
+              href={`/painel/notas/${turma.id}`}
+              className="text-sm underline decoration-mark decoration-[3px] underline-offset-4"
+            >
+              Ver boletim da turma
+            </Link>
+          </div>
           <ul className="grid gap-2">
             {assignments.map((a) => {
               const status = assignmentStatus(a, now);
               return (
                 <li key={a.id}>
                   <Link
-                    href={`/painel/provas/${a.examId}`}
+                    href={`/painel/provas/${a.examId}/turmas/${a.id}`}
                     className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-md border-[1.5px] border-border bg-card px-4 py-3 outline-none hover:border-foreground focus-visible:ring-4 focus-visible:ring-ring"
                   >
                     <span className="font-medium">{a.examTitle}</span>

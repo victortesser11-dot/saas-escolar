@@ -15,7 +15,7 @@ export async function UserMenu() {
       <form action={signOut}>
         <Button type="submit" variant="ghost" size="sm">
           <LogOut aria-hidden />
-          Sair
+          <span className="sr-only sm:not-sr-only">Sair</span>
         </Button>
       </form>
     </div>

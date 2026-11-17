@@ -476,3 +476,9 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | Liberações do professor (`attempt_releases`: retomada com minutos extras ou nova tentativa) já consumidas pelo motor; a interface de liberação fica na Etapa 7 | RN-19, RN-20 |
 | 2026-11-17 | App do aluno: fila de salvamento com nova tentativa exponencial e pendências em `sessionStorage`; cronômetro compensa o relógio do celular; ao zerar, envia automaticamente | RNF-10, RNF-11, RF-42, RF-43 |
 | 2026-11-17 | Playwright local com 2 workers | Mais paralelismo sobrecarregava o servidor de desenvolvimento e gerava falhas falsas |
+| 2026-11-17 | **Etapa 7:** `grant_release`, `teacher_finalize_attempt` e `grade_answer` (SECURITY DEFINER com checagem de participação); correção recalcula a nota e fica no histórico | RF-46 a RF-52 |
+| 2026-11-17 | "Encerrar agora"/mudança de fechamento antecipa o prazo das aplicações em andamento (trigger) | Antes, quem já tinha começado continuava até o próprio prazo |
+| 2026-11-17 | Indicadores calculados no servidor Next a partir das tabelas (sem views/materialização) | Volumes por turma são pequenos; reavaliar com o crescimento |
+| 2026-11-17 | Notas em aproveitamento (%); faixas 70/50 com ícone + rótulo; gráficos de série única em HTML/CSS com uma cor e um destaque; cores de status validadas (`--ok #1f7a4a`, `--warn #b8860b`, `--pen`) | Diretrizes de visualização: cor nunca sozinha, sem biblioteca de gráficos |
+| 2026-11-17 | Painel do professor atualiza a cada 15 s enquanto a prova está aberta (`router.refresh`), sem Realtime | Plano Free do Supabase limita conexões Realtime (seção 10.1) |
+| 2026-11-17 | Contêineres com rolagem horizontal usam `position: relative`; grades com `grid-cols-1`; teste E2E mede estouro horizontal no celular | Texto oculto para leitores de tela (posição absoluta) escapava do recorte e alargava a página inteira no celular |

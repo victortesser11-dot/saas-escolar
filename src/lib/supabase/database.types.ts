@@ -400,6 +400,12 @@ isOneToOne: false
 "get_exam_entry":
 { Args: { "p_code": string }; Returns: Json
                            },
+"grade_answer":
+{ Args: { "p_answer_id": string,"p_points": number }; Returns: Json
+                           },
+"grant_release":
+{ Args: { "p_assignment_id": string,"p_extra_minutes": number,"p_kind": Database["public"]['Enums']["release_kind"],"p_reason": string,"p_student_id": string }; Returns: Json
+                           },
 "import_students":
 { Args: { "p_class_id": string,"p_students": Json }; Returns: Json
                            },
@@ -420,6 +426,9 @@ isOneToOne: false
                            },
 "submit_attempt":
 { Args: { "p_token": string }; Returns: Json
+                           },
+"teacher_finalize_attempt":
+{ Args: { "p_attempt_id": string }; Returns: Json
                            },
 "unpublish_exam":
 { Args: { "p_exam_id": string }; Returns: undefined

@@ -9,7 +9,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b-[1.5px] border-foreground bg-card">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
+        <div className="mx-auto flex h-14 w-full max-w-5xl items-center gap-2 px-3 sm:gap-8 sm:px-6">
           <Brand href={ROUTES.dashboard} className="hidden text-sm sm:inline-flex" />
           <Link
             href={ROUTES.dashboard}

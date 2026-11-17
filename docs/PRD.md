@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.4 |
+| Versão | 0.5 |
 | Data | 2026-11-17 |
 | Status | Aprovado — em desenvolvimento (Etapa 1) |
 | Fontes | [`PROMPT_01.md`](./PROMPT_01.md) · Complemento "Regras de funcionamento das provas" (Etapa 2) |
@@ -155,6 +155,13 @@ Escola
 - RF-50 Liberar **retomada** de uma aplicação interrompida.
 - RF-51 Liberar **nova tentativa** (gera nova aplicação, conforme configurações da prova).
 - RF-52 Notificação no painel sobre alunos com interrupção ou problema de envio.
+
+### 5.8 Dashboard de notas (pedido de 2026-11-17)
+- RF-53 Dashboard de notas **por prova e turma**: participação, média e mediana, maior/menor nota, alunos abaixo de 50%, correções pendentes, distribuição das notas e acerto por questão (identificando a mais difícil).
+- RF-54 **Boletim por turma**: alunos × provas aplicadas, com média por prova, média por aluno, entregas e alunos em atenção.
+- RF-55 **Visão geral de notas**: resumo de todas as turmas (média, provas aplicadas, pendências de correção).
+- RF-56 Notas comparadas em **aproveitamento** (% da nota máxima), para provas de valores diferentes; faixas: 70% ou mais, 50–69%, abaixo de 50% (sempre com rótulo e ícone, não só cor).
+- RF-57 Notas parciais (dissertativa por corrigir) aparecem marcadas e **não** contam como "abaixo de 50%" até a correção.
 
 ## 6. Regras de negócio
 
@@ -333,3 +340,4 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | 0.2 | 2026-11-17 | Incorporado o complemento "Regras de funcionamento das provas": sorteio, alternativas, pontuação, tipos de questão, tempo, retomada, tentativas, exibição de resultado, problemas de conexão, painel de controle e segurança. Adicionados RF-29 a RF-52, regras de negócio (RN-01 a RN-31), RNFs numerados, LGPD e novas questões em aberto. |
 | 0.3 | 2026-11-17 | Decididas Q-01 a Q-09 e Q-11 conforme propostas; login por e-mail/senha e Google; código de acesso opcional por prova. Q-10 segue em aberto. |
 | 0.4 | 2026-11-17 | Fluxo "prova primeiro": questões escritas dentro da prova (banco automático por trás); prova aplicada em várias turmas, cada uma com link, período e código próprios (seção 4.1). |
+| 0.5 | 2026-11-17 | Dashboard de notas por prova e turma, boletim da turma e visão geral (RF-53 a RF-57). |
