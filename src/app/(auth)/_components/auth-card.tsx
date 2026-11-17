@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+/** Bloco das telas de autenticação: título com marca-texto, descrição e formulário. */
 export function AuthCard({
   title,
   description,
@@ -13,17 +13,19 @@ export function AuthCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="grid gap-4">
-      <Card className="[--card-spacing:--spacing(6)]">
-        <CardHeader>
-          <CardTitle>
-            <h1 className="text-xl font-semibold">{title}</h1>
-          </CardTitle>
-          {description ? <CardDescription>{description}</CardDescription> : null}
-        </CardHeader>
-        <CardContent className="grid gap-4">{children}</CardContent>
-      </Card>
-      {footer ? <p className="text-center text-sm text-muted-foreground">{footer}</p> : null}
+    <div className="grid gap-6">
+      <div className="grid gap-2">
+        <h1 className="text-3xl font-bold tracking-tight">
+          <span className="hl">{title}</span>
+        </h1>
+        {description ? <p className="text-muted-foreground">{description}</p> : null}
+      </div>
+      <div className="grid gap-4">{children}</div>
+      {footer ? (
+        <p className="border-t-[1.5px] border-dashed border-border pt-4 text-sm text-muted-foreground">
+          {footer}
+        </p>
+      ) : null}
     </div>
   );
 }

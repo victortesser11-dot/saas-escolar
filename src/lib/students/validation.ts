@@ -31,8 +31,6 @@ export const studentSchema = z.object({
 
 export type StudentInput = z.output<typeof studentSchema>;
 
-const currentYear = new Date().getFullYear();
-
 export const classSchema = z.object({
   name: z
     .string({ error: "Informe o nome da turma." })
@@ -58,4 +56,3 @@ export const classSchema = z.object({
 });
 
 export type ClassInput = z.output<typeof classSchema>;
-export const DEFAULT_SCHOOL_YEAR = currentYear;

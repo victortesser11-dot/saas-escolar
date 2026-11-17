@@ -4,11 +4,11 @@ import { MailCheck } from "lucide-react";
 import { useActionState } from "react";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/validation";
 import { signUp } from "../actions";
-import { FormField } from "../_components/form-field";
-import { FormMessage } from "../_components/form-message";
+import { FormField } from "@/components/form/form-field";
+import { FormMessage } from "@/components/form/form-message";
 import { GoogleSignIn } from "../_components/google-button";
-import { SubmitButton } from "../_components/submit-button";
-import { initialFormState } from "../form-state";
+import { SubmitButton } from "@/components/form/submit-button";
+import { initialFormState } from "@/lib/form-state";
 
 export function SignUpForm() {
   const [state, formAction] = useActionState(signUp, initialFormState);

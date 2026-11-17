@@ -2,10 +2,10 @@
 
 import { useActionState } from "react";
 import { requestPasswordReset } from "../actions";
-import { FormField } from "../_components/form-field";
-import { FormMessage } from "../_components/form-message";
-import { SubmitButton } from "../_components/submit-button";
-import { initialFormState } from "../form-state";
+import { FormField } from "@/components/form/form-field";
+import { FormMessage } from "@/components/form/form-message";
+import { SubmitButton } from "@/components/form/submit-button";
+import { initialFormState } from "@/lib/form-state";
 
 export function ForgotPasswordForm() {
   const [state, formAction] = useActionState(requestPasswordReset, initialFormState);

@@ -1,35 +1,89 @@
+import { Archive, Plus } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
+import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
+import { pluralize } from "@/lib/classes/messages";
+import { countArchivedClasses, listClasses } from "@/lib/classes/queries";
+import { ClassCard, ClassGridSkeleton } from "./_components/class-card";
 
 export const metadata: Metadata = { title: "Painel" };
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="h-16 w-64 animate-pulse rounded-lg bg-muted" />}>
-      <Welcome />
-    </Suspense>
+    <div className="grid gap-10">
+      <Suspense fallback={<div className="h-20 w-72 animate-pulse rounded-sm bg-muted" />}>
+        <Greeting />
+      </Suspense>
+      <section className="grid gap-4" aria-labelledby="turmas-titulo">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="turmas-titulo" className="text-xl font-semibold">
+            Turmas
+          </h2>
+          <Link href="/painel/turmas/nova" className={buttonVariants()}>
+            <Plus aria-hidden />
+            Nova turma
+          </Link>
+        </div>
+        <Suspense fallback={<ClassGridSkeleton />}>
+          <ClassList />
+        </Suspense>
+      </section>
+    </div>
   );
 }
 
-async function Welcome() {
+async function Greeting() {
   const user = await getCurrentUser();
   const firstName = user.fullName.split(" ")[0] || "professor(a)";
+  return (
+    <PageHeader
+      eyebrow={user.workspace.name}
+      title={`Olá, ${firstName}`}
+      description="Organize suas turmas e alunos. Em seguida você poderá montar o banco de questões e aplicar provas."
+    />
+  );
+}
+
+async function ClassList() {
+  const [classes, archivedCount] = await Promise.all([
+    listClasses({ archived: false }),
+    countArchivedClasses(),
+  ]);
 
   return (
-    <div className="grid gap-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Olá, {firstName}</h1>
-        <p className="mt-1 text-muted-foreground">Bem-vindo(a) ao seu painel.</p>
-      </div>
-
-      <section className="rounded-xl border border-dashed p-8 text-center">
-        <h2 className="font-medium">Seu espaço está pronto</h2>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Em breve você poderá cadastrar turmas e alunos, montar seu banco de questões e aplicar
-          provas por aqui.
-        </p>
-      </section>
+    <div className="grid gap-4">
+      {classes.length === 0 ? (
+        <EmptyState
+          title="Nenhuma turma ainda"
+          description="Crie sua primeira turma e adicione os alunos, um a um ou importando uma planilha."
+        >
+          <Link href="/painel/turmas/nova" className={buttonVariants()}>
+            <Plus aria-hidden />
+            Criar primeira turma
+          </Link>
+        </EmptyState>
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {classes.map((item) => (
+            <li key={item.id}>
+              <ClassCard item={item} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {archivedCount > 0 ? (
+        <Link
+          href="/painel/turmas/arquivadas"
+          className={buttonVariants({ variant: "ghost", size: "sm", className: "w-fit" })}
+        >
+          <Archive aria-hidden />
+          {pluralize(archivedCount, "turma arquivada", "turmas arquivadas")}
+        </Link>
+      ) : null}
     </div>
   );
 }

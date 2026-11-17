@@ -1,5 +1,5 @@
 import { signInWithGoogle } from "../actions";
-import { SubmitButton } from "./submit-button";
+import { SubmitButton } from "@/components/form/submit-button";
 
 /** Exibido somente quando o login com Google estiver configurado (ver .env.example). */
 export function isGoogleAuthEnabled() {

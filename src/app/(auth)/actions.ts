@@ -12,7 +12,7 @@ import {
 } from "@/lib/auth/validation";
 import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
-import type { FormState } from "./form-state";
+import type { FormState } from "@/lib/form-state";
 
 function text(formData: FormData, key: string): string {
   const value = formData.get(key);

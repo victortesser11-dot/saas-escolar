@@ -17,7 +17,7 @@ export function SubmitButton({
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" size="lg" variant={variant} className="h-10 w-full" disabled={pending}>
+    <Button type="submit" size="lg" variant={variant} className="w-full" disabled={pending}>
       {pending ? (
         <>
           <LoaderCircle className="animate-spin" aria-hidden />

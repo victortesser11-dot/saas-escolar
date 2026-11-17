@@ -445,3 +445,11 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | `getCurrentUser` chama `connection()` | O Next 16 (Cache Components/Partial Prefetching) não permite leitura do relógio na pré-renderização; o cliente Supabase consulta a validade do token |
 | 2026-11-17 | Respostas de cadastro e recuperação de senha idênticas para e-mails existentes e inexistentes | Evita enumeração de contas |
 | 2026-11-17 | CI sobe o Supabase local (Docker) e roda lint do banco, pgTAP e Playwright | Mesma validação do ambiente local em cada push |
+| 2026-11-17 | **Identidade visual "Caderno quadriculado"** (direção B): papel quadriculado, grafite, marca-texto amarelo, caneta vermelha; Schibsted Grotesk + IBM Plex Mono; tema único claro | Escolha do responsável pelo produto, para fugir do visual genérico de IA. Tokens em `src/app/globals.css` (`--paper`, `--grid`, `--mark`, `--pen`, `--ok`) e componentes shadcn/ui ajustados |
+| 2026-11-17 | **Etapa 2:** alunos pertencem ao espaço (não à turma); vínculo `class_students` com FK composta por `workspace_id` | Um aluno pode estar em várias turmas sem duplicação; impossível vincular aluno de outro espaço |
+| 2026-11-17 | Matrícula normalizada (maiúsculas, sem espaços) no banco e no app, mesma regra | Evita duplicatas como "2024a 013" × "2024A013"; será a mesma regra na identificação do aluno na prova |
+| 2026-11-17 | Importação CSV: leitura no navegador (Papa Parse; UTF-8 ou Windows-1252), revalidação no servidor e gravação atômica pela função `import_students` | Excel em português gera CSV com `;` e Windows-1252. Nada é gravado pela metade; reimportar não duplica |
+| 2026-11-17 | XLSX não é aceito no MVP; o app orienta a salvar como CSV | Decisão Q-11 |
+| 2026-11-17 | Turmas são arquivadas (não somem) ao fim do ano; exclusão remove só a turma e a lista de chamada | Preserva histórico; alunos continuam no espaço |
+| 2026-11-17 | Ids de campos gerados com `useId` | O Next 16 mantém páginas anteriores ocultas no DOM (voltar instantâneo); ids derivados do `name` se repetiam e ligavam o rótulo ao campo errado |
+| 2026-11-17 | Mutações: `refresh()` ao permanecer na página; `revalidatePath` + `redirect` ao navegar | API recomendada no Next 16 |
