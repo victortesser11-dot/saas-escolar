@@ -23,7 +23,59 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "class_students": {
+            "attempt_questions": {
+                  Row: {
+                    "attempt_id": string,"exam_question_id": string,"id": string,"option_order": (string)[],"points": number,"position": number,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempt_id": string,"exam_question_id": string,"id"?: string,"option_order"?: (string)[],"points": number,"position": number,"workspace_id": string
+                  }
+                  Update: {
+                    "attempt_id"?: string,"exam_question_id"?: string,"id"?: string,"option_order"?: (string)[],"points"?: number,"position"?: number,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "attempt_questions_exam_question_id_fkey"
+      columns: ["exam_question_id"]
+isOneToOne: false
+      referencedRelation: "exam_questions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attempt_questions_workspace_id_attempt_id_fkey"
+      columns: ["workspace_id","attempt_id"]
+isOneToOne: false
+      referencedRelation: "exam_attempts"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"attempt_releases": {
+                  Row: {
+                    "assignment_id": string,"consumed_at": string | null,"extra_minutes": number,"granted_at": string,"granted_by": string | null,"id": string,"kind": Database["public"]['Enums']["release_kind"],"reason": string | null,"student_id": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assignment_id": string,"consumed_at"?: string | null,"extra_minutes"?: number,"granted_at"?: string,"granted_by"?: string | null,"id"?: string,"kind": Database["public"]['Enums']["release_kind"],"reason"?: string | null,"student_id": string,"workspace_id": string
+                  }
+                  Update: {
+                    "assignment_id"?: string,"consumed_at"?: string | null,"extra_minutes"?: number,"granted_at"?: string,"granted_by"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["release_kind"],"reason"?: string | null,"student_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "attempt_releases_assignment_id_fkey"
+      columns: ["assignment_id"]
+isOneToOne: false
+      referencedRelation: "exam_assignments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attempt_releases_workspace_id_student_id_fkey"
+      columns: ["workspace_id","student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"class_students": {
                   Row: {
                     "class_id": string,"created_at": string,"student_id": string,"workspace_id": string
                   }
@@ -93,6 +145,64 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "exams"
       referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"exam_attempts": {
+                  Row: {
+                    "assignment_id": string,"attempt_number": number,"auto_score": number | null,"class_id": string,"created_at": string,"exam_id": string,"expires_at": string,"final_score": number | null,"finalize_reason": string | null,"finalized_at": string | null,"grading_status": Database["public"]['Enums']["grading_status"] | null,"id": string,"max_score": number | null,"started_at": string,"status": Database["public"]['Enums']["attempt_status"],"student_id": string,"submitted_at": string | null,"token_hash": string,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assignment_id": string,"attempt_number"?: number,"auto_score"?: number | null,"class_id": string,"created_at"?: string,"exam_id": string,"expires_at": string,"final_score"?: number | null,"finalize_reason"?: string | null,"finalized_at"?: string | null,"grading_status"?: Database["public"]['Enums']["grading_status"] | null,"id"?: string,"max_score"?: number | null,"started_at"?: string,"status"?: Database["public"]['Enums']["attempt_status"],"student_id": string,"submitted_at"?: string | null,"token_hash": string,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "assignment_id"?: string,"attempt_number"?: number,"auto_score"?: number | null,"class_id"?: string,"created_at"?: string,"exam_id"?: string,"expires_at"?: string,"final_score"?: number | null,"finalize_reason"?: string | null,"finalized_at"?: string | null,"grading_status"?: Database["public"]['Enums']["grading_status"] | null,"id"?: string,"max_score"?: number | null,"started_at"?: string,"status"?: Database["public"]['Enums']["attempt_status"],"student_id"?: string,"submitted_at"?: string | null,"token_hash"?: string,"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exam_attempts_assignment_id_fkey"
+      columns: ["assignment_id"]
+isOneToOne: false
+      referencedRelation: "exam_assignments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "exam_attempts_workspace_id_student_id_fkey"
+      columns: ["workspace_id","student_id"]
+isOneToOne: false
+      referencedRelation: "students"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"exam_events": {
+                  Row: {
+                    "actor": string,"assignment_id": string,"attempt_id": string | null,"created_at": string,"id": number,"payload": NonNullable<Json>,"student_id": string | null,"type": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actor": string,"assignment_id": string,"attempt_id"?: string | null,"created_at"?: string,"id"?: never,"payload"?: NonNullable<Json>,"student_id"?: string | null,"type": string,"workspace_id": string
+                  }
+                  Update: {
+                    "actor"?: string,"assignment_id"?: string,"attempt_id"?: string | null,"created_at"?: string,"id"?: never,"payload"?: NonNullable<Json>,"student_id"?: string | null,"type"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "exam_events_assignment_id_fkey"
+      columns: ["assignment_id"]
+isOneToOne: false
+      referencedRelation: "exam_assignments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "exam_events_attempt_id_fkey"
+      columns: ["attempt_id"]
+isOneToOne: false
+      referencedRelation: "exam_attempts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "exam_events_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
     }
                   ]
                 },"exam_questions": {
@@ -195,6 +305,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"student_answers": {
+                  Row: {
+                    "attempt_id": string,"attempt_question_id": string,"graded_at": string | null,"graded_by": string | null,"id": string,"is_correct": boolean | null,"needs_review": boolean,"points_awarded": number | null,"saved_at": string,"selected_option_ids": (string)[],"text_answer": string | null,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempt_id": string,"attempt_question_id": string,"graded_at"?: string | null,"graded_by"?: string | null,"id"?: string,"is_correct"?: boolean | null,"needs_review"?: boolean,"points_awarded"?: number | null,"saved_at"?: string,"selected_option_ids"?: (string)[],"text_answer"?: string | null,"workspace_id": string
+                  }
+                  Update: {
+                    "attempt_id"?: string,"attempt_question_id"?: string,"graded_at"?: string | null,"graded_by"?: string | null,"id"?: string,"is_correct"?: boolean | null,"needs_review"?: boolean,"points_awarded"?: number | null,"saved_at"?: string,"selected_option_ids"?: (string)[],"text_answer"?: string | null,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "student_answers_attempt_question_id_fkey"
+      columns: ["attempt_question_id"]
+isOneToOne: true
+      referencedRelation: "attempt_questions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_answers_workspace_id_attempt_id_fkey"
+      columns: ["workspace_id","attempt_id"]
+isOneToOne: false
+      referencedRelation: "exam_attempts"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
                 },"students": {
                   Row: {
                     "created_at": string,"full_name": string,"id": string,"registration_code": string,"updated_at": string,"workspace_id": string
@@ -258,6 +394,12 @@ isOneToOne: false
             "add_questions_to_exam":
 { Args: { "p_exam_id": string,"p_question_ids": (string)[] }; Returns: number
                            },
+"get_attempt":
+{ Args: { "p_token": string }; Returns: Json
+                           },
+"get_exam_entry":
+{ Args: { "p_code": string }; Returns: Json
+                           },
 "import_students":
 { Args: { "p_class_id": string,"p_students": Json }; Returns: Json
                            },
@@ -267,15 +409,24 @@ isOneToOne: false
 "publish_exam":
 { Args: { "p_exam_id": string }; Returns: undefined
                            },
+"save_answer":
+{ Args: { "p_attempt_question_id": string,"p_selected": (string)[],"p_text": string,"p_token": string }; Returns: Json
+                           },
 "save_question":
 { Args: { "p_explanation": string,"p_options": Json,"p_points": number,"p_question_id": string,"p_stem": string,"p_tags": (string)[],"p_type": Database["public"]['Enums']["question_type"],"p_workspace_id": string }; Returns: string
+                           },
+"start_attempt":
+{ Args: { "p_access_code": string,"p_code": string,"p_name": string,"p_registration": string,"p_resume_token": string }; Returns: Json
+                           },
+"submit_attempt":
+{ Args: { "p_token": string }; Returns: Json
                            },
 "unpublish_exam":
 { Args: { "p_exam_id": string }; Returns: undefined
                            }
           }
           Enums: {
-            "exam_status": "draft"|"published","question_source": "manual"|"import"|"ai","question_status": "draft"|"approved","question_type": "single_choice"|"true_false"|"multiple_choice"|"short_answer"|"essay","result_visibility": "score_only"|"score_and_key","workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
+            "attempt_status": "in_progress"|"interrupted"|"submitted"|"expired"|"superseded","exam_status": "draft"|"published","grading_status": "pending_review"|"graded","question_source": "manual"|"import"|"ai","question_status": "draft"|"approved","question_type": "single_choice"|"true_false"|"multiple_choice"|"short_answer"|"essay","release_kind": "resume"|"new_attempt","result_visibility": "score_only"|"score_and_key","workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -395,7 +546,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "exam_status": ["draft", "published"],"question_source": ["manual", "import", "ai"],"question_status": ["draft", "approved"],"question_type": ["single_choice", "true_false", "multiple_choice", "short_answer", "essay"],"result_visibility": ["score_only", "score_and_key"],"workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
+            "attempt_status": ["in_progress", "interrupted", "submitted", "expired", "superseded"],"exam_status": ["draft", "published"],"grading_status": ["pending_review", "graded"],"question_source": ["manual", "import", "ai"],"question_status": ["draft", "approved"],"question_type": ["single_choice", "true_false", "multiple_choice", "short_answer", "essay"],"release_kind": ["resume", "new_attempt"],"result_visibility": ["score_only", "score_and_key"],"workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
           }
         }
 } as const
