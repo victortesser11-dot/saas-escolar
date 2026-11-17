@@ -453,3 +453,10 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | Turmas são arquivadas (não somem) ao fim do ano; exclusão remove só a turma e a lista de chamada | Preserva histórico; alunos continuam no espaço |
 | 2026-11-17 | Ids de campos gerados com `useId` | O Next 16 mantém páginas anteriores ocultas no DOM (voltar instantâneo); ids derivados do `name` se repetiam e ligavam o rótulo ao campo errado |
 | 2026-11-17 | Mutações: `refresh()` ao permanecer na página; `revalidatePath` + `redirect` ao navegar | API recomendada no Next 16 |
+| 2026-11-17 | **Etapa 3:** questões e alternativas gravadas só pela função `save_question` (SECURITY DEFINER com checagem explícita de participação); sem INSERT/UPDATE diretos | Garante as regras de cada tipo (ex.: múltipla escolha com exatamente 1 correta) mesmo contra chamadas diretas à API; troca de alternativas é atômica |
+| 2026-11-17 | Resposta curta: respostas aceitas guardadas como alternativas corretas; comparação ignora maiúsculas, acentos, espaços e trata 0,5 = 0.5 | Mesma regra será usada na correção (Etapa 5); o professor poderá revisar |
+| 2026-11-17 | Seleção múltipla: tudo ou nada | Decisão Q-05 |
+| 2026-11-17 | Valor padrão por questão (`default_points`); o valor efetivo será definido na prova | Permite reutilizar a questão com pesos diferentes (RF-29) |
+| 2026-11-17 | `status` (rascunho/aprovada) e `source` (manual/importação/IA) já no modelo | Preparação para a geração por IA com revisão do professor |
+| 2026-11-17 | Exclusão de questão é definitiva por enquanto | Quando as provas existirem (Etapa 4), questões usadas ficarão protegidas pela cópia congelada na prova |
+| 2026-11-17 | Componentes cliente que leem a URL (`usePathname`) ficam dentro de `<Suspense>` | Exigência do Next 16 para rotas dinâmicas; só o build de produção acusa |

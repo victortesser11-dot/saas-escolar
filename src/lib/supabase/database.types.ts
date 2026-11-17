@@ -83,6 +83,46 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"question_options": {
+                  Row: {
+                    "body": string,"id": string,"is_correct": boolean,"position": number,"question_id": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"id"?: string,"is_correct"?: boolean,"position": number,"question_id": string,"workspace_id": string
+                  }
+                  Update: {
+                    "body"?: string,"id"?: string,"is_correct"?: boolean,"position"?: number,"question_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "question_options_workspace_id_question_id_fkey"
+      columns: ["workspace_id","question_id"]
+isOneToOne: false
+      referencedRelation: "questions"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"questions": {
+                  Row: {
+                    "author_id": string | null,"created_at": string,"default_points": number,"explanation": string | null,"id": string,"source": Database["public"]['Enums']["question_source"],"status": Database["public"]['Enums']["question_status"],"stem": string,"tags": (string)[],"type": Database["public"]['Enums']["question_type"],"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"created_at"?: string,"default_points"?: number,"explanation"?: string | null,"id"?: string,"source"?: Database["public"]['Enums']["question_source"],"status"?: Database["public"]['Enums']["question_status"],"stem": string,"tags"?: (string)[],"type": Database["public"]['Enums']["question_type"],"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"created_at"?: string,"default_points"?: number,"explanation"?: string | null,"id"?: string,"source"?: Database["public"]['Enums']["question_source"],"status"?: Database["public"]['Enums']["question_status"],"stem"?: string,"tags"?: (string)[],"type"?: Database["public"]['Enums']["question_type"],"updated_at"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "questions_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"students": {
                   Row: {
                     "created_at": string,"full_name": string,"id": string,"registration_code": string,"updated_at": string,"workspace_id": string
@@ -145,10 +185,13 @@ isOneToOne: false
           Functions: {
             "import_students":
 { Args: { "p_class_id": string,"p_students": Json }; Returns: Json
+                           },
+"save_question":
+{ Args: { "p_explanation": string,"p_options": Json,"p_points": number,"p_question_id": string,"p_stem": string,"p_tags": (string)[],"p_type": Database["public"]['Enums']["question_type"],"p_workspace_id": string }; Returns: string
                            }
           }
           Enums: {
-            "workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
+            "question_source": "manual"|"import"|"ai","question_status": "draft"|"approved","question_type": "single_choice"|"true_false"|"multiple_choice"|"short_answer"|"essay","workspace_role": "owner"|"admin"|"teacher","workspace_type": "personal"|"school"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -268,7 +311,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
+            "question_source": ["manual", "import", "ai"],"question_status": ["draft", "approved"],"question_type": ["single_choice", "true_false", "multiple_choice", "short_answer", "essay"],"workspace_role": ["owner", "admin", "teacher"],"workspace_type": ["personal", "school"]
           }
         }
 } as const
