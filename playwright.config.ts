@@ -13,7 +13,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Cada teste cria contas e provas; mais que 2 em paralelo sobrecarrega o servidor de desenvolvimento.
+  workers: process.env.CI ? 1 : 2,
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL,

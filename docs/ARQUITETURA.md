@@ -467,3 +467,12 @@ Cada etapa termina com testes passando e uma demonstração para validação.
 | 2026-11-17 | Voltar a rascunho apenas sem nenhuma aplicação; aplicação só removível antes de abrir | Evita turma com link para prova não publicada |
 | 2026-11-17 | FKs `RESTRICT`: questão usada em prova e turma com prova aplicada não podem ser excluídas | Preserva histórico e resultados |
 | 2026-11-17 | Datas exibidas no fuso do navegador (com fallback de Brasília no servidor); campos `datetime-local` convertidos para ISO no navegador | O Brasil tem vários fusos |
+| 2026-11-17 | **Etapas 5–6:** aluno sem conta acessa por `/p/[código]`; funções `get_exam_entry`, `start_attempt`, `get_attempt`, `save_answer`, `submit_attempt` (SECURITY DEFINER, papel anon) | Implementa a seção 5.1: lógica crítica no banco, tráfego do aluno direto ao Supabase |
+| 2026-11-17 | Token aleatório de 256 bits por aplicação; banco guarda só o SHA-256; navegador guarda em `sessionStorage` | Recarregar a mesma aba continua a prova; outro aparelho/aba interrompe (Q-02) |
+| 2026-11-17 | Identificação: matrícula da lista da turma + primeiro nome (sem acento/maiúscula) + código de acesso opcional; 5 erros em 10 min bloqueiam a matrícula | Q-06, Q-07; protege o código de 4 dígitos contra tentativa e erro |
+| 2026-11-17 | Erros de negócio das funções do aluno voltam como `{"error": "..."}` (sem exceção) | Exceções desfariam o registro de ocorrências em `exam_events` |
+| 2026-11-17 | Correção no banco (`finalize_attempt`): escolha tudo ou nada; resposta curta normalizada (mesma regra do app, com `unaccent`); dissertativa em branco vale 0, preenchida fica pendente | RN-26 a RN-31, Q-05 |
+| 2026-11-17 | `pg_cron` a cada minuto encerra aplicações vencidas (tolerância de 30 s) | Prova termina mesmo se o celular desligar (RN-15) |
+| 2026-11-17 | Liberações do professor (`attempt_releases`: retomada com minutos extras ou nova tentativa) já consumidas pelo motor; a interface de liberação fica na Etapa 7 | RN-19, RN-20 |
+| 2026-11-17 | App do aluno: fila de salvamento com nova tentativa exponencial e pendências em `sessionStorage`; cronômetro compensa o relógio do celular; ao zerar, envia automaticamente | RNF-10, RNF-11, RF-42, RF-43 |
+| 2026-11-17 | Playwright local com 2 workers | Mais paralelismo sobrecarregava o servidor de desenvolvimento e gerava falhas falsas |
