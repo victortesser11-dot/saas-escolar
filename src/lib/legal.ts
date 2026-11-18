@@ -8,11 +8,11 @@ export const LEGAL = {
   updatedAt: "17 de novembro de 2026",
   product: "Avaliações Escolares",
   /** Nome completo ou razão social de quem oferece o serviço. */
-  owner: "",
+  owner: "Victor Tesser Rodrigues Blasco",
   /** CPF ou CNPJ (opcional, mas recomendado). */
-  ownerDocument: "",
+  ownerDocument: "CNPJ 69.853.386/0001-80",
   /** E-mail para pedidos sobre dados pessoais (também atua como canal do encarregado). */
-  contactEmail: "",
+  contactEmail: "privacidade@moda-triade.com.br",
 } as const;
 
 export const LEGAL_ROUTES = { terms: "/termos", privacy: "/privacidade" } as const;
