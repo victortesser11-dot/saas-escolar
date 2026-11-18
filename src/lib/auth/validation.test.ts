@@ -12,7 +12,14 @@ describe("signUpSchema", () => {
     fullName: "  Maria Silva ",
     email: " Maria@Escola.COM ",
     password: "senha-forte-1",
+    acceptTerms: "on",
   };
+
+  it("exige o aceite dos termos", () => {
+    const result = signUpSchema.safeParse({ ...valid, acceptTerms: undefined });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(["acceptTerms"]);
+  });
 
   it("normaliza nome e e-mail", () => {
     const result = signUpSchema.parse(valid);

@@ -22,6 +22,7 @@ test("cadastro valida os campos antes de enviar", async ({ page }) => {
 
   await expect(page.getByText("Informe um e-mail válido.")).toBeVisible();
   await expect(page.getByText("A senha precisa ter pelo menos 8 caracteres.")).toBeVisible();
+  await expect(page.getByText(/aceite os Termos de uso/)).toBeVisible();
   // Os valores digitados (exceto a senha) são preservados.
   await expect(field(page, "Nome completo")).toHaveValue("Ana");
 });
@@ -85,4 +86,21 @@ test("link de confirmação inválido mostra aviso no login", async ({ page }) =
   await page.goto("/auth/confirm?token_hash=invalido&type=email");
   await expect(page).toHaveURL(/\/entrar\?erro=link$/);
   await expect(page.getByText(/link é inválido ou expirou/)).toBeVisible();
+});
+
+test("termos e privacidade abrem sem login, a partir do cadastro", async ({ page }) => {
+  await page.goto("/cadastro");
+  await page
+    .getByRole("navigation", { name: "Documentos legais" })
+    .getByRole("link", { name: "Privacidade" })
+    .click();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Política de privacidade" }),
+  ).toBeVisible();
+  await expect(page.getByText(/Crianças e adolescentes/)).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Documentos legais" })
+    .getByRole("link", { name: "Termos de uso" })
+    .click();
+  await expect(page.getByRole("heading", { level: 1, name: "Termos de uso" })).toBeVisible();
 });

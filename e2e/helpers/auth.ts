@@ -9,6 +9,10 @@ export async function signUpAndConfirm(page: Page, fullName: string, email: stri
   await field(page, "Nome completo").fill(fullName);
   await field(page, "E-mail").fill(email);
   await field(page, "Senha").fill(PASSWORD);
+  await page
+    .getByRole("checkbox", { name: /Li e aceito/ })
+    .filter({ visible: true })
+    .check();
   await page.getByRole("button", { name: "Criar conta" }).click();
   await expect(page.getByRole("heading", { name: "Verifique seu e-mail" })).toBeVisible();
 

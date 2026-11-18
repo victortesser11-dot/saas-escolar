@@ -346,6 +346,12 @@ function EntryScreen({
         <p className="text-center text-xs text-muted-foreground">
           Depois de começar, não feche esta página até enviar a prova.
         </p>
+        <p className="text-center text-xs text-muted-foreground">
+          Seu nome, matrícula e respostas são usados só pela escola para esta avaliação.{" "}
+          <a href="/privacidade" target="_blank" className="underline">
+            Privacidade
+          </a>
+        </p>
       </form>
     </div>
   );

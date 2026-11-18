@@ -34,6 +34,9 @@ export const signUpSchema = z.object({
     .max(120, { error: "O nome pode ter no máximo 120 caracteres." }),
   email,
   password: newPassword,
+  acceptTerms: z.literal("on", {
+    error: "Para criar a conta, aceite os Termos de uso e a Política de privacidade.",
+  }),
 });
 
 export const forgotPasswordSchema = z.object({ email });

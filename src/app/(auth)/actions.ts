@@ -10,6 +10,7 @@ import {
   signUpSchema,
   toFieldErrors,
 } from "@/lib/auth/validation";
+import { LEGAL } from "@/lib/legal";
 import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import type { FormState } from "@/lib/form-state";
@@ -37,7 +38,11 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
 
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = { fullName: text(formData, "fullName"), email: text(formData, "email") };
-  const parsed = signUpSchema.safeParse({ ...values, password: text(formData, "password") });
+  const parsed = signUpSchema.safeParse({
+    ...values,
+    password: text(formData, "password"),
+    acceptTerms: text(formData, "acceptTerms") || undefined,
+  });
   if (!parsed.success) {
     return { status: "error", fieldErrors: toFieldErrors(parsed.error), values };
   }
@@ -47,7 +52,12 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name: parsed.data.fullName },
+      // Registro do aceite (versão e momento) junto do cadastro.
+      data: {
+        full_name: parsed.data.fullName,
+        terms_version: LEGAL.version,
+        terms_accepted_at: new Date().toISOString(),
+      },
       emailRedirectTo: `${await getSiteUrl()}${ROUTES.dashboard}`,
     },
   });

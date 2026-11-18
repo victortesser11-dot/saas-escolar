@@ -245,6 +245,7 @@ Escola
 ### 7.5 Privacidade (LGPD)
 - RNF-17 Coletar o mínimo de dados de alunos (nome e matrícula), considerando que podem ser menores de idade.
 - RNF-18 Dados hospedados preferencialmente no Brasil.
+- RNF-19 Termos de uso e Política de privacidade públicos (`/termos`, `/privacidade`); aceite obrigatório no cadastro, registrado com versão e data; aviso de privacidade na entrada da prova. Escola/professor é controlador dos dados dos alunos; a plataforma é operadora.
 
 ### 7.6 Preparação para IA
 - Arquitetura preparada para evolução com IA (seção 10), sem implementar no MVP.

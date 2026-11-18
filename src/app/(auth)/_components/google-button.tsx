@@ -41,6 +41,17 @@ export function GoogleSignIn({ next }: { next?: string }) {
           Continuar com Google
         </SubmitButton>
       </form>
+      <p className="-mt-2 text-center text-xs text-muted-foreground">
+        Ao continuar com o Google, você aceita os{" "}
+        <a href="/termos" className="underline">
+          Termos de uso
+        </a>{" "}
+        e a{" "}
+        <a href="/privacidade" className="underline">
+          Política de privacidade
+        </a>
+        .
+      </p>
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
         <span className="h-px flex-1 bg-border" />
         ou

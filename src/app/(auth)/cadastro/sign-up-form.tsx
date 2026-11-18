@@ -1,7 +1,9 @@
 "use client";
 
 import { MailCheck } from "lucide-react";
-import { useActionState } from "react";
+import Link from "next/link";
+import { useActionState, useId } from "react";
+import { LEGAL_ROUTES } from "@/lib/legal";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/validation";
 import { signUp } from "../actions";
 import { FormField } from "@/components/form/form-field";
@@ -12,6 +14,7 @@ import { initialFormState } from "@/lib/form-state";
 
 export function SignUpForm() {
   const [state, formAction] = useActionState(signUp, initialFormState);
+  const termsErrorId = useId();
 
   if (state.status === "success") {
     return (
@@ -60,6 +63,38 @@ export function SignUpForm() {
           hint={`Mínimo de ${PASSWORD_MIN_LENGTH} caracteres.`}
           error={state.fieldErrors?.password}
         />
+        <div className="grid gap-1.5">
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              name="acceptTerms"
+              required
+              aria-invalid={state.fieldErrors?.acceptTerms ? true : undefined}
+              aria-describedby={state.fieldErrors?.acceptTerms ? termsErrorId : undefined}
+              className="mt-0.5 size-4 shrink-0 accent-foreground"
+            />
+            <span className="text-muted-foreground">
+              Li e aceito os{" "}
+              <Link href={LEGAL_ROUTES.terms} target="_blank" className="text-foreground underline">
+                Termos de uso
+              </Link>{" "}
+              e a{" "}
+              <Link
+                href={LEGAL_ROUTES.privacy}
+                target="_blank"
+                className="text-foreground underline"
+              >
+                Política de privacidade
+              </Link>
+              .
+            </span>
+          </label>
+          {state.fieldErrors?.acceptTerms ? (
+            <p id={termsErrorId} className="text-sm text-destructive">
+              {state.fieldErrors.acceptTerms}
+            </p>
+          ) : null}
+        </div>
         <SubmitButton pendingLabel="Criando conta…">Criar conta</SubmitButton>
       </form>
     </>

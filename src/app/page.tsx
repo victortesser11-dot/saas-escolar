@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { GradeMark } from "@/components/grade-mark";
+import { LegalLinks } from "@/components/legal-links";
 import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/auth/routes";
 
@@ -42,6 +43,9 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <footer className="px-4 pb-6 sm:px-8">
+        <LegalLinks />
+      </footer>
     </div>
   );
 }
