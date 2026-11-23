@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/page-header";
+import { listSubjects } from "@/lib/subjects/queries";
 import { createExam } from "../actions";
 import { ExamInfoForm } from "../_components/exam-info-form";
 
@@ -13,11 +15,21 @@ export default function NewExamPage() {
         title="Nova prova"
         description="Comece pelo nome. Em seguida você escreve as questões e define as regras."
       />
-      <ExamInfoForm
-        action={createExam}
-        defaults={{ title: "", description: "", instructions: "" }}
-        submitLabel="Criar e adicionar questões"
-      />
+      <Suspense fallback={<div className="h-64 max-w-2xl animate-pulse rounded-md bg-muted" />}>
+        <NewExamForm />
+      </Suspense>
     </div>
+  );
+}
+
+async function NewExamForm() {
+  const subjects = await listSubjects();
+  return (
+    <ExamInfoForm
+      action={createExam}
+      defaults={{ title: "", subject: "", description: "", instructions: "" }}
+      submitLabel="Criar e adicionar questões"
+      subjects={subjects.map((s) => s.name)}
+    />
   );
 }

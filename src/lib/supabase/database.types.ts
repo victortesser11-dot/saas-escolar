@@ -77,14 +77,14 @@ isOneToOne: false
                   ]
                 },"class_students": {
                   Row: {
-                    "class_id": string,"created_at": string,"student_id": string,"workspace_id": string
+                    "class_id": string,"created_at": string,"joined_via": string,"student_id": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "class_id": string,"created_at"?: string,"student_id": string,"workspace_id": string
+                    "class_id": string,"created_at"?: string,"joined_via"?: string,"student_id": string,"workspace_id": string
                   }
                   Update: {
-                    "class_id"?: string,"created_at"?: string,"student_id"?: string,"workspace_id"?: string
+                    "class_id"?: string,"created_at"?: string,"joined_via"?: string,"student_id"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -101,16 +101,42 @@ isOneToOne: false
       referencedColumns: ["workspace_id","id"]
     }
                   ]
-                },"classes": {
+                },"class_subjects": {
                   Row: {
-                    "archived_at": string | null,"created_at": string,"id": string,"name": string,"school_year": number | null,"teacher_id": string | null,"updated_at": string,"workspace_id": string
+                    "class_id": string,"created_at": string,"subject_id": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name": string,"school_year"?: number | null,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id": string
+                    "class_id": string,"created_at"?: string,"subject_id": string,"workspace_id": string
                   }
                   Update: {
-                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name"?: string,"school_year"?: number | null,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id"?: string
+                    "class_id"?: string,"created_at"?: string,"subject_id"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "class_subjects_workspace_id_class_id_fkey"
+      columns: ["workspace_id","class_id"]
+isOneToOne: false
+      referencedRelation: "classes"
+      referencedColumns: ["workspace_id","id"]
+    },{
+      foreignKeyName: "class_subjects_workspace_id_subject_id_fkey"
+      columns: ["workspace_id","subject_id"]
+isOneToOne: false
+      referencedRelation: "subjects"
+      referencedColumns: ["workspace_id","id"]
+    }
+                  ]
+                },"classes": {
+                  Row: {
+                    "archived_at": string | null,"created_at": string,"id": string,"name": string,"school_year": number | null,"self_enroll": boolean,"teacher_id": string | null,"updated_at": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name": string,"school_year"?: number | null,"self_enroll"?: boolean,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id": string
+                  }
+                  Update: {
+                    "archived_at"?: string | null,"created_at"?: string,"id"?: string,"name"?: string,"school_year"?: number | null,"self_enroll"?: boolean,"teacher_id"?: string | null,"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
@@ -233,17 +259,23 @@ isOneToOne: false
                   ]
                 },"exams": {
                   Row: {
-                    "created_at": string,"description": string | null,"id": string,"instructions": string | null,"owner_id": string | null,"published_at": string | null,"questions_per_attempt": number | null,"result_visibility": Database["public"]['Enums']["result_visibility"],"shuffle_options": boolean,"shuffle_questions": boolean,"status": Database["public"]['Enums']["exam_status"],"time_limit_minutes": number | null,"title": string,"updated_at": string,"workspace_id": string
+                    "created_at": string,"description": string | null,"id": string,"instructions": string | null,"owner_id": string | null,"published_at": string | null,"questions_per_attempt": number | null,"result_visibility": Database["public"]['Enums']["result_visibility"],"shuffle_options": boolean,"shuffle_questions": boolean,"status": Database["public"]['Enums']["exam_status"],"subject_id": string | null,"time_limit_minutes": number | null,"title": string,"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"time_limit_minutes"?: number | null,"title": string,"updated_at"?: string,"workspace_id": string
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title": string,"updated_at"?: string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"time_limit_minutes"?: number | null,"title"?: string,"updated_at"?: string,"workspace_id"?: string
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title"?: string,"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "exams_subject_fk"
+      columns: ["workspace_id","subject_id"]
+isOneToOne: false
+      referencedRelation: "subjects"
+      referencedColumns: ["workspace_id","id"]
+    },{
       foreignKeyName: "exams_workspace_id_fkey"
       columns: ["workspace_id"]
 isOneToOne: false
@@ -345,6 +377,26 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "students_workspace_id_fkey"
+      columns: ["workspace_id"]
+isOneToOne: false
+      referencedRelation: "workspaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"subjects": {
+                  Row: {
+                    "created_at": string,"id": string,"name": string,"workspace_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"name": string,"workspace_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"name"?: string,"workspace_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subjects_workspace_id_fkey"
       columns: ["workspace_id"]
 isOneToOne: false
       referencedRelation: "workspaces"

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { field, signOut, signUpAndConfirm } from "./helpers/auth";
+import { addStudent, field, signOut, signUpAndConfirm } from "./helpers/auth";
 import { uniqueEmail } from "./helpers/mailpit";
 
 /**
@@ -13,12 +13,6 @@ async function createClass(page: Page, name: string, year = "2026") {
   await field(page, "Ano letivo").fill(year);
   await page.getByRole("button", { name: "Criar turma" }).click();
   await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
-}
-
-async function addStudent(page: Page, fullName: string, code: string) {
-  await field(page, "Nome completo").fill(fullName);
-  await field(page, "Matrícula").fill(code);
-  await page.getByRole("button", { name: "Adicionar" }).click();
 }
 
 const studentRows = (page: Page) => page.locator("table tbody tr").filter({ visible: true });
@@ -47,19 +41,19 @@ test("professor cria turma, adiciona e remove alunos", async ({ page }) => {
 
   await createClass(page, "7º ano B");
   await expect(page.getByText("Ano 2026 · 0 alunos")).toBeVisible();
-  await expect(page.getByText("Nenhum aluno nesta turma")).toBeVisible();
+  await expect(page.getByText("Nenhum aluno ainda")).toBeVisible();
 
   await addStudent(page, "Bruno Lima", "2026 b02");
   await expect(page.getByText("Bruno Lima foi adicionado(a) à turma.")).toBeVisible();
   await addStudent(page, "Ana Souza", "2026a01");
   await expect(studentRows(page)).toHaveCount(2);
-  // Ordem alfabética e matrícula normalizada.
+  // Ordem de chamada (pelo número) e número normalizado.
   await expect(studentRows(page).first()).toContainText("Ana Souza");
   await expect(studentRows(page).last()).toContainText("2026B02");
 
-  // Matrícula repetida na mesma turma.
+  // Número repetido na mesma turma.
   await addStudent(page, "Outro Nome", "2026A01");
-  await expect(page.getByText("A matrícula 2026A01 já está nesta turma.")).toBeVisible();
+  await expect(page.getByText("O número 2026A01 já está nesta turma.")).toBeVisible();
   await expect(studentRows(page)).toHaveCount(2);
 
   // Remoção com confirmação.
@@ -91,7 +85,7 @@ test("importação de planilha CSV do Excel em português", async ({ page }) => 
   await uploadFile(page, csv, "2 alunos prontos para importar");
   await expect(page.getByText("2 linhas com problema")).toBeVisible();
   await expect(page.getByText("Informe o nome completo do aluno.")).toBeVisible();
-  await expect(page.getByText("Matrícula 801 repetida (já aparece na linha 2).")).toBeVisible();
+  await expect(page.getByText("Número 801 repetido (já aparece na linha 2).")).toBeVisible();
   await expect(page.getByRole("cell", { name: "João Alves" })).toBeVisible();
 
   await page.getByRole("button", { name: "Importar 2 alunos" }).click();
@@ -104,7 +98,7 @@ test("importação de planilha CSV do Excel em português", async ({ page }) => 
   await page.goto(page.url() + "/importar");
   await uploadFile(page, csv, "2 alunos prontos para importar");
   await page.getByRole("button", { name: "Importar 2 alunos" }).click();
-  await expect(page.getByText(/2 já estavam cadastrados.*2 já estavam na turma/)).toBeVisible();
+  await expect(page.getByText("2 já estavam na turma.")).toBeVisible();
 });
 
 test("arquivo do Excel (.xlsx) recebe orientação para salvar como CSV", async ({ page }) => {
@@ -128,13 +122,13 @@ test("editar, arquivar, reativar e excluir turma; editar aluno", async ({ page }
   await addStudent(page, "Fábio Reis", "601");
   await expect(studentRows(page)).toHaveCount(1);
 
-  // Editar aluno: matrícula nova é normalizada.
+  // Editar aluno: número novo é normalizado.
   await page.getByRole("link", { name: "Fábio Reis" }).click();
-  await expect(page.getByText("Matrícula 601")).toBeVisible();
-  await field(page, "Matrícula").fill("601-b");
+  await expect(page.getByText("Nº 601")).toBeVisible();
+  await field(page, "Número na turma").fill("601-b");
   await page.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(page.getByText("Dados do aluno atualizados.")).toBeVisible();
-  await expect(page.getByText("Matrícula 601-B")).toBeVisible();
+  await expect(page.getByText("Nº 601-B")).toBeVisible();
 
   // Editar turma.
   await page.getByRole("link", { name: "6º ano" }).first().click();
@@ -155,7 +149,9 @@ test("editar, arquivar, reativar e excluir turma; editar aluno", async ({ page }
   await page.getByRole("link", { name: /6º ano A/ }).click();
   await expect(page.getByText("Turma arquivada.")).toBeVisible();
   await page.getByRole("button", { name: "Reativar turma" }).click();
-  await expect(page.getByRole("heading", { name: "Adicionar aluno" })).toBeVisible();
+  await expect(
+    page.getByText("Adicionar aluno manualmente").filter({ visible: true }),
+  ).toBeVisible();
 
   // Excluir turma: o aluno continua existindo.
   await page.getByRole("link", { name: "Editar turma" }).click();

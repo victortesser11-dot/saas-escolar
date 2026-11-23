@@ -7,16 +7,20 @@ import { SubmitButton } from "@/components/form/submit-button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { initialFormState, type FormState } from "@/lib/form-state";
+import { SUBJECT_NAME_MAX } from "@/lib/subjects/schema";
 
 /** Nome, descrição (só para o professor) e instruções (mostradas ao aluno). */
 export function ExamInfoForm({
   action,
   defaults,
   submitLabel,
+  subjects,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
-  defaults: { title: string; description: string; instructions: string };
+  defaults: { title: string; subject: string; description: string; instructions: string };
   submitLabel: string;
+  /** Disciplinas já usadas pelo professor (sugestões). */
+  subjects: string[];
 }) {
   const [state, formAction] = useActionState(action, initialFormState);
   const values = state.values ?? defaults;
@@ -35,6 +39,24 @@ export function ExamInfoForm({
         defaultValue={values.title}
         error={state.fieldErrors?.title}
       />
+      <div className="grid max-w-sm gap-2">
+        <FormField
+          name="subject"
+          label="Disciplina"
+          placeholder="Ex.: Matemática"
+          maxLength={SUBJECT_NAME_MAX}
+          autoComplete="off"
+          list={`${ids}-subjects`}
+          hint="Opcional. Separa as provas e o boletim de cada turma por disciplina."
+          defaultValue={values.subject}
+          error={state.fieldErrors?.subject}
+        />
+        <datalist id={`${ids}-subjects`}>
+          {subjects.map((name) => (
+            <option key={name} value={name} />
+          ))}
+        </datalist>
+      </div>
       <div className="grid gap-2">
         <Label htmlFor={`${ids}-instructions`}>
           Instruções para os alunos{" "}

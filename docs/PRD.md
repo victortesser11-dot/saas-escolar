@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.5 |
+| Versão | 0.6 |
 | Data | 2026-11-17 |
 | Status | Aprovado — em desenvolvimento (Etapa 1) |
 | Fontes | [`PROMPT_01.md`](./PROMPT_01.md) · Complemento "Regras de funcionamento das provas" (Etapa 2) |
@@ -47,7 +47,7 @@ Fluxo "prova primeiro" (decidido em 2026-11-17, ver seção 4.1):
 2. Define o valor de cada questão, quantas questões cada aluno recebe, tempo e o que o aluno vê no fim.
 3. Revisa o resumo (nota máxima, tempo, correção manual) e publica: conteúdo, valores e regras ficam travados.
 4. Aplica a prova em uma ou mais turmas: cada turma recebe link próprio, período e código de acesso opcional.
-5. Aluno acessa pelo celular e informa nome e matrícula (sem conta).
+5. Aluno acessa pelo celular e informa nome e número na turma (sem conta); se ainda não estiver na lista, é cadastrado nela.
 6. O sistema gera a aplicação individual (sorteio de questões e de alternativas) e inicia o tempo.
 7. Aluno responde; respostas são salvas no servidor à medida que são marcadas.
 8. Aluno confirma o envio (ou o tempo expira e a prova é encerrada automaticamente).
@@ -94,7 +94,7 @@ Escola
 - RF-03 Gerenciamento de turmas.
 
 ### 5.2 Gestão de alunos
-- RF-04 Cadastro manual de alunos (nome + número de identificação/matrícula).
+- RF-04 Cadastro manual de alunos (nome + número na turma: nº da chamada ou matrícula). Opcional: os alunos podem se cadastrar ao entrar na prova (RF-59).
 - RF-05 Importação de alunos por planilha. **[Se viável — proposta: CSV no MVP]**
 
 ### 5.3 Gestão de provas
@@ -126,7 +126,7 @@ Escola
 ### 5.5 Experiência do aluno
 - RF-15 Interface mobile-first.
 - RF-16 Acesso sem cadastro.
-- RF-17 Identificação por nome e matrícula.
+- RF-17 Identificação por nome e número na turma.
 - RF-18 Interface limpa e intuitiva.
 - RF-19 Apresentação das questões.
 - RF-20 Navegação entre questões.
@@ -155,6 +155,11 @@ Escola
 - RF-50 Liberar **retomada** de uma aplicação interrompida.
 - RF-51 Liberar **nova tentativa** (gera nova aplicação, conforme configurações da prova).
 - RF-52 Notificação no painel sobre alunos com interrupção ou problema de envio.
+
+### 5.9 Retorno do piloto (2026-11-23)
+- RF-58 **Disciplinas dentro da turma**: a turma tem várias disciplinas (ex.: 7º B com Matemática e Ciências), sem duplicar turma nem alunos. A prova tem uma disciplina; aplicá-la inclui a disciplina na turma. Provas e boletim da turma ficam separados por disciplina.
+- RF-59 **Cadastro do aluno pela prova**: a lista da turma deixa de ser obrigatória. O aluno informa nome e número na turma; se o número não estiver na lista, ele é incluído e marcado como "entrou pela prova" para conferência do professor. Número já usado com outro primeiro nome é recusado. O professor pode **fechar a lista** por turma.
+- RF-60 O número do aluno é único **por turma** (antes, a matrícula era única no espaço do professor). Números só com dígitos ignoram zeros à esquerda ("07" = "7").
 
 ### 5.8 Dashboard de notas (pedido de 2026-11-17)
 - RF-53 Dashboard de notas **por prova e turma**: participação, média e mediana, maior/menor nota, alunos abaixo de 50%, correções pendentes, distribuição das notas e acerto por questão (identificando a mais difícil).
@@ -243,7 +248,7 @@ Escola
 - RNF-16 Migração para planos pagos sem reconstruir o produto.
 
 ### 7.5 Privacidade (LGPD)
-- RNF-17 Coletar o mínimo de dados de alunos (nome e matrícula), considerando que podem ser menores de idade.
+- RNF-17 Coletar o mínimo de dados de alunos (nome e número na turma), considerando que podem ser menores de idade.
 - RNF-18 Dados hospedados preferencialmente no Brasil.
 - RNF-19 Termos de uso e Política de privacidade públicos (`/termos`, `/privacidade`); aceite obrigatório no cadastro, registrado com versão e data; aviso de privacidade na entrada da prova. Escola/professor é controlador dos dados dos alunos; a plataforma é operadora.
 
@@ -326,7 +331,7 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | Q-03 | Ao liberar retomada, o tempo continua contando de onde estava ou o professor pode estender? | ✅ Prazo original mantido; o professor pode adicionar minutos na liberação. |
 | Q-04 | Quando há várias tentativas, qual nota vale? | ✅ A da última tentativa liberada; anteriores ficam no histórico. |
 | Q-05 | Seleção múltipla: pontuação tudo-ou-nada ou parcial? | ✅ Tudo-ou-nada no MVP. |
-| Q-06 | O aluno precisa estar cadastrado na turma para fazer a prova? | ✅ Sim: matrícula validada contra a lista da turma. |
+| Q-06 | O aluno precisa estar cadastrado na turma para fazer a prova? | ✅ Revisto no piloto (v0.6): não. Por padrão o aluno se cadastra ao entrar (nome + número); o professor pode fechar a lista por turma. |
 | Q-07 | Exigir um código de acesso exibido em sala para evitar que alguém faça a prova de fora? | ✅ Código de acesso **opcional**, configurável por prova. |
 | Q-08 | Questões com imagem no MVP? | ✅ Fora do MVP (impacto em armazenamento e tráfego gratuitos). |
 | Q-09 | Login do professor: e-mail/senha, Google ou ambos? | ✅ Ambos. E-mail/senha implementado; Google depende de credenciais OAuth (Google Cloud). |
@@ -342,3 +347,4 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | 0.3 | 2026-11-17 | Decididas Q-01 a Q-09 e Q-11 conforme propostas; login por e-mail/senha e Google; código de acesso opcional por prova. Q-10 segue em aberto. |
 | 0.4 | 2026-11-17 | Fluxo "prova primeiro": questões escritas dentro da prova (banco automático por trás); prova aplicada em várias turmas, cada uma com link, período e código próprios (seção 4.1). |
 | 0.5 | 2026-11-17 | Dashboard de notas por prova e turma, boletim da turma e visão geral (RF-53 a RF-57). |
+| 0.6 | 2026-11-23 | Retorno do piloto: disciplinas dentro da turma, cadastro do aluno pela prova e número único por turma (RF-58 a RF-60; Q-06 revista). |

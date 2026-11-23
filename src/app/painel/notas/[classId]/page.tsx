@@ -17,10 +17,10 @@ import { summarize } from "@/lib/results/stats";
 
 type Props = PageProps<"/painel/notas/[classId]">;
 
-export default function ClassGradesPage({ params }: Props) {
+export default function ClassGradesPage({ params, searchParams }: Props) {
   return (
     <Suspense fallback={<div className="h-96 animate-pulse rounded-md bg-muted" />}>
-      <Content params={params} />
+      <Content params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
@@ -28,9 +28,13 @@ export default function ClassGradesPage({ params }: Props) {
 const mean = (values: number[]) =>
   values.length ? Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 10) / 10 : null;
 
-async function Content({ params }: Pick<Props, "params">) {
-  const { classId } = await params;
-  const { turma, columns, students } = await getClassGradebook(classId);
+async function Content({ params, searchParams }: Pick<Props, "params" | "searchParams">) {
+  const [{ classId }, query] = await Promise.all([params, searchParams]);
+  const requested = typeof query.disciplina === "string" ? query.disciplina : null;
+  const { turma, subjects, activeSubject, columns, students } = await getClassGradebook(
+    classId,
+    requested,
+  );
 
   // Média por prova (coluna) e por aluno (linha), só com notas existentes.
   const columnMeans = columns.map((_, i) =>
@@ -62,10 +66,12 @@ async function Content({ params }: Pick<Props, "params">) {
 
   return (
     <div className="grid grid-cols-1 gap-8">
-      <title>{`Notas · ${turma.name} · Avaliações Escolares`}</title>
+      <title>{`Notas · ${turma.name}${activeSubject ? ` · ${activeSubject.name}` : ""} · Avaliações Escolares`}</title>
       <PageHeader
         back={{ href: "/painel/notas", label: "Notas" }}
-        eyebrow={turma.schoolYear ? `Ano ${turma.schoolYear}` : "Turma"}
+        eyebrow={[turma.schoolYear ? `Ano ${turma.schoolYear}` : "Turma", activeSubject?.name]
+          .filter(Boolean)
+          .join(" · ")}
         title={turma.name}
         actions={
           <Link
@@ -77,9 +83,39 @@ async function Content({ params }: Pick<Props, "params">) {
         }
       />
 
+      {subjects.length > 0 ? (
+        <nav aria-label="Disciplina" className="flex flex-wrap gap-2">
+          {[{ id: null, name: "Todas" }, ...subjects].map((subject) => {
+            const active = (activeSubject?.id ?? null) === subject.id;
+            return (
+              <Link
+                key={subject.id ?? "todas"}
+                href={
+                  subject.id
+                    ? `/painel/notas/${turma.id}?disciplina=${subject.id}`
+                    : `/painel/notas/${turma.id}`
+                }
+                aria-current={active ? "page" : undefined}
+                className={
+                  active
+                    ? "rounded-md border-[1.5px] border-foreground bg-foreground px-3 py-1.5 text-sm font-medium text-background"
+                    : "rounded-md border-[1.5px] border-border bg-card px-3 py-1.5 text-sm hover:border-foreground"
+                }
+              >
+                {subject.name}
+              </Link>
+            );
+          })}
+        </nav>
+      ) : null}
+
       {columns.length === 0 ? (
         <EmptyState
-          title="Nenhuma prova aplicada nesta turma"
+          title={
+            activeSubject
+              ? `Nenhuma prova de ${activeSubject.name} nesta turma`
+              : "Nenhuma prova aplicada nesta turma"
+          }
           description="Publique uma prova e aplique nesta turma para acompanhar as notas aqui."
         >
           <Link href="/painel/provas" className={buttonVariants()}>

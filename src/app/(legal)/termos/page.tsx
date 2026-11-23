@@ -43,7 +43,7 @@ export default function TermsPage() {
         </li>
         <li>informar alunos e responsáveis sobre o uso da ferramenta nas avaliações;</li>
         <li>usar notas e respostas apenas para fins educacionais;</li>
-        <li>não incluir dados além do necessário (nome e matrícula bastam).</li>
+        <li>não incluir dados além do necessário (nome e número na turma bastam).</li>
       </ul>
 
       <h2>4. Uso permitido</h2>

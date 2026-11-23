@@ -42,7 +42,9 @@ async function ExamContent({ params, searchParams }: Props) {
       <title>{`${exam.title} · Avaliações Escolares`}</title>
       <PageHeader
         back={{ href: "/painel/provas", label: "Provas" }}
-        eyebrow={published ? "Prova publicada" : "Rascunho"}
+        eyebrow={[exam.subject?.name, published ? "Prova publicada" : "Rascunho"]
+          .filter(Boolean)
+          .join(" · ")}
         title={exam.title}
         actions={
           <>
@@ -51,7 +53,7 @@ async function ExamContent({ params, searchParams }: Props) {
               className={buttonVariants({ variant: "ghost" })}
             >
               <Pencil aria-hidden />
-              Nome e instruções
+              Nome e disciplina
             </Link>
             {published ? (
               <Link href={`/painel/provas/${exam.id}/aplicar`} className={buttonVariants()}>

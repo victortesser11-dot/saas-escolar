@@ -13,6 +13,7 @@ export type ExamListItem = {
   title: string;
   status: ExamRow["status"];
   questionCount: number;
+  subjectName: string | null;
   classNames: string[];
   updatedAt: string;
 };
@@ -22,7 +23,9 @@ export async function listExams(): Promise<ExamListItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("exams")
-    .select("id, title, status, updated_at, exam_questions(count), exam_assignments(classes(name))")
+    .select(
+      "id, title, status, updated_at, subjects(name), exam_questions(count), exam_assignments(classes(name))",
+    )
     .eq("workspace_id", user.workspace.id)
     .order("updated_at", { ascending: false });
   if (error) throw new Error(`Falha ao listar provas: ${error.message}`);
@@ -33,6 +36,7 @@ export async function listExams(): Promise<ExamListItem[]> {
     status: row.status,
     updatedAt: row.updated_at,
     questionCount: row.exam_questions[0]?.count ?? 0,
+    subjectName: row.subjects?.name ?? null,
     classNames: row.exam_assignments
       .map((a) => a.classes?.name)
       .filter((name): name is string => Boolean(name)),
@@ -62,6 +66,7 @@ export type ExamAssignmentItem = {
 export type ExamDetail = {
   id: string;
   title: string;
+  subject: { id: string; name: string } | null;
   description: string | null;
   instructions: string | null;
   status: ExamRow["status"];
@@ -85,7 +90,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
   const { data, error } = await supabase
     .from("exams")
     .select(
-      `id, title, description, instructions, status, questions_per_attempt, shuffle_questions,
+      `id, title, subjects(id, name), description, instructions, status, questions_per_attempt, shuffle_questions,
        shuffle_options, time_limit_minutes, result_visibility, published_at,
        exam_questions(id, question_id, points, position, content,
          questions(type, stem, question_options(count))),
@@ -131,6 +136,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
   return {
     id: data.id,
     title: data.title,
+    subject: data.subjects ?? null,
     description: data.description,
     instructions: data.instructions,
     status: data.status,
@@ -152,7 +158,7 @@ export async function listClassAssignments(classId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("exam_assignments")
-    .select("id, exam_id, opens_at, closes_at, closed_at, exams(title)")
+    .select("id, exam_id, opens_at, closes_at, closed_at, exams(title, subjects(id, name))")
     .eq("class_id", classId)
     .order("opens_at", { ascending: false });
   if (error) throw new Error(`Falha ao listar provas da turma: ${error.message}`);
@@ -160,6 +166,7 @@ export async function listClassAssignments(classId: string) {
     id: a.id,
     examId: a.exam_id,
     examTitle: a.exams?.title ?? "",
+    subject: a.exams?.subjects ?? null,
     opensAt: a.opens_at,
     closesAt: a.closes_at,
     closedAt: a.closed_at,
@@ -169,6 +176,7 @@ export async function listClassAssignments(classId: string) {
 /** Quantas provas publicadas usam a questão (aviso ao editar). */
 export async function countPublishedExamsUsingQuestion(questionId: string): Promise<number> {
   if (!isUuid(questionId)) return 0;
+  await getCurrentUser();
   const supabase = await createClient();
   const { count } = await supabase
     .from("exam_questions")

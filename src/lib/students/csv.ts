@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { rollKey } from "./registration-code";
 import { studentSchema, type StudentInput } from "./validation";
 
 /** Limite por importação (o mesmo da função import_students no banco). */
@@ -24,6 +25,12 @@ const CODE_HEADERS = [
   "id",
   "identificacao",
   "numero",
+  "n",
+  "no",
+  "num",
+  "chamada",
+  "numerodachamada",
+  "numeronaturma",
 ];
 
 /** "Matrícula " → "matricula" (sem acentos, espaços ou pontuação). */
@@ -56,8 +63,8 @@ function findColumns(header: string[]) {
 
 /**
  * Lê o CSV de alunos. Aceita vírgula ou ponto e vírgula, com ou sem cabeçalho.
- * Com cabeçalho, procura colunas de nome e matrícula pelos títulos usuais.
- * Sem cabeçalho, assume: 1ª coluna = nome, 2ª coluna = matrícula.
+ * Com cabeçalho, procura colunas de nome e número pelos títulos usuais.
+ * Sem cabeçalho, assume: 1ª coluna = nome, 2ª coluna = número (chamada ou matrícula).
  */
 export function parseStudentsCsv(text: string): CsvParseResult {
   const parsed = Papa.parse<string[]>(text.trim(), {
@@ -73,7 +80,7 @@ export function parseStudentsCsv(text: string): CsvParseResult {
   // Regras:
   // 1. 1ª linha com títulos reconhecidos → usa essas colunas.
   // 2. 1ª linha sem nenhum número (parece título), mas não reconhecida → pede os títulos.
-  // 3. 1ª linha com números (já é um aluno) → sem cabeçalho: coluna 1 = nome, 2 = matrícula.
+  // 3. 1ª linha com números (já é um aluno) → sem cabeçalho: coluna 1 = nome, 2 = número.
   let { nameIndex, codeIndex } = findColumns(table[0]);
   let firstDataRow = 1;
 
@@ -83,15 +90,14 @@ export function parseStudentsCsv(text: string): CsvParseResult {
       return {
         rows: [],
         errors: [],
-        fatal:
-          'Não encontramos as colunas de nome e matrícula. Use os títulos "Nome" e "Matrícula".',
+        fatal: 'Não encontramos as colunas de nome e número. Use os títulos "Nome" e "Número".',
       };
     }
     if (table[0].length < 2) {
       return {
         rows: [],
         errors: [],
-        fatal: "O arquivo precisa ter duas colunas: nome do aluno e matrícula.",
+        fatal: "O arquivo precisa ter duas colunas: nome do aluno e número.",
       };
     }
     nameIndex = 0;
@@ -127,16 +133,16 @@ export function parseStudentsCsv(text: string): CsvParseResult {
       return;
     }
 
-    const duplicateOf = seenCodes.get(result.data.registrationCode);
+    const duplicateOf = seenCodes.get(rollKey(result.data.registrationCode));
     if (duplicateOf) {
       errors.push({
         line,
-        message: `Matrícula ${result.data.registrationCode} repetida (já aparece na linha ${duplicateOf}).`,
+        message: `Número ${result.data.registrationCode} repetido (já aparece na linha ${duplicateOf}).`,
       });
       return;
     }
 
-    seenCodes.set(result.data.registrationCode, line);
+    seenCodes.set(rollKey(result.data.registrationCode), line);
     rows.push({ ...result.data, line });
   });
 

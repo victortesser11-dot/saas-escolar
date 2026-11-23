@@ -69,6 +69,9 @@ async function ExamList() {
               <StatusChip tone={exam.status === "published" ? "published" : "draft"}>
                 {exam.status === "published" ? "Publicada" : "Rascunho"}
               </StatusChip>
+              {exam.subjectName ? (
+                <span className="text-sm font-medium">{exam.subjectName}</span>
+              ) : null}
               <span className="font-mono text-sm tabular-nums">
                 {pluralize(exam.questionCount, "questão", "questões")}
               </span>

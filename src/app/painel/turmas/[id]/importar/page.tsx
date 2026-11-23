@@ -26,7 +26,7 @@ async function ImportContent({
       <PageHeader
         back={{ href: `/painel/turmas/${turma.id}`, label: turma.name }}
         title="Importar planilha"
-        description="Envie um arquivo CSV com o nome e a matrícula dos alunos. Você confere tudo antes de confirmar."
+        description="Envie um arquivo CSV com o nome e o número dos alunos. Você confere tudo antes de confirmar."
       />
       <ImportStudents classId={turma.id} action={importStudents.bind(null, turma.id)} />
     </div>

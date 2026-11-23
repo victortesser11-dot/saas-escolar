@@ -43,7 +43,8 @@ export default function PrivacyPage() {
       <h3>Alunos</h3>
       <ul>
         <li>
-          Nome e matrícula, cadastrados pelo professor ou digitados pelo aluno ao entrar na prova.
+          Nome e número na turma (nº da chamada ou matrícula), cadastrados pelo professor ou
+          digitados pelo próprio aluno ao entrar na prova.
         </li>
         <li>
           Respostas, notas, horários de início e de envio da prova e ocorrências (por exemplo, prova
@@ -89,7 +90,7 @@ export default function PrivacyPage() {
       <h2>4. Crianças e adolescentes</h2>
       <p>
         Muitos alunos são menores de idade. Por isso, coletamos o mínimo necessário para a prova
-        (nome e matrícula), e os dados são usados apenas no melhor interesse do aluno, para a
+        (nome e número na turma), e os dados são usados apenas no melhor interesse do aluno, para a
         avaliação escolar (art. 14 da LGPD). Cabe à escola ou ao professor informar os alunos e seus
         responsáveis sobre o uso da ferramenta.
       </p>

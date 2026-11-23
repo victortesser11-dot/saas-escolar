@@ -21,7 +21,7 @@ const PREVIEW_LIMIT = 100;
 
 /** Modelo com BOM, para o Excel abrir os acentos corretamente. */
 const TEMPLATE_HREF = `data:text/csv;charset=utf-8,${encodeURIComponent(
-  "﻿Nome;Matrícula\r\nAna Souza;2026001\r\nBruno Lima;2026002\r\n",
+  "﻿Nome;Número\r\nAna Souza;1\r\nBruno Lima;2\r\n",
 )}`;
 
 type Step =
@@ -154,7 +154,7 @@ export function ImportStudents({
                     scope="col"
                     className="label-mono px-4 py-2.5 font-normal text-muted-foreground"
                   >
-                    Matrícula
+                    Nº
                   </th>
                 </tr>
               </thead>
@@ -246,7 +246,7 @@ function FilePicker({
         <span className="font-semibold">Escolha o arquivo CSV ou arraste para cá</span>
         <span className="text-sm text-muted-foreground">
           Até 500 alunos por arquivo. Colunas: <span className="font-mono">Nome</span> e{" "}
-          <span className="font-mono">Matrícula</span>.
+          <span className="font-mono">Número</span>.
         </span>
         <input
           id={inputId}
@@ -267,14 +267,14 @@ function FilePicker({
         <ol className="grid list-decimal gap-1.5 pl-5 text-muted-foreground">
           <li>
             Use uma coluna com o título <strong className="text-foreground">Nome</strong> e outra
-            com o título <strong className="text-foreground">Matrícula</strong> (ou RA). Outras
-            colunas são ignoradas.
+            com o título <strong className="text-foreground">Número</strong> (nº da chamada; também
+            aceitamos Matrícula ou RA). Outras colunas são ignoradas.
           </li>
           <li>
             No Excel ou no Google Planilhas, salve ou baixe como{" "}
             <strong className="text-foreground">CSV</strong>.
           </li>
-          <li>Alunos que já existem no seu espaço (mesma matrícula) não são duplicados.</li>
+          <li>Números que já estão na turma não são duplicados.</li>
         </ol>
         <a
           href={TEMPLATE_HREF}

@@ -34,7 +34,7 @@ export function StudentForm({
       />
       <FormField
         name="registrationCode"
-        label="Matrícula"
+        label="Número na turma"
         autoComplete="off"
         autoCapitalize="characters"
         spellCheck={false}

@@ -314,15 +314,19 @@ function EntryScreen({
           <Input id={`${ids}-name`} name="name" autoComplete="name" className="h-12 text-base" />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor={`${ids}-registration`}>Matrícula</Label>
+          <Label htmlFor={`${ids}-registration`}>Seu número na turma</Label>
           <Input
             id={`${ids}-registration`}
             name="registration"
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
+            aria-describedby={`${ids}-registration-hint`}
             className="h-12 font-mono text-base uppercase"
           />
+          <p id={`${ids}-registration-hint`} className="text-xs text-muted-foreground">
+            Seu número na chamada (ou a matrícula, se o professor pedir).
+          </p>
         </div>
         {entry.requires_access_code ? (
           <div className="grid gap-2">
@@ -347,7 +351,7 @@ function EntryScreen({
           Depois de começar, não feche esta página até enviar a prova.
         </p>
         <p className="text-center text-xs text-muted-foreground">
-          Seu nome, matrícula e respostas são usados só pela escola para esta avaliação.{" "}
+          Seu nome, número e respostas são usados só pela escola para esta avaliação.{" "}
           <a href="/privacidade" target="_blank" className="underline">
             Privacidade
           </a>

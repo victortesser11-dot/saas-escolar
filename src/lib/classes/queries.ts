@@ -23,7 +23,24 @@ export type ClassStudent = {
   registrationCode: string;
 };
 
-export type ClassDetail = Omit<ClassSummary, "studentCount"> & { students: ClassStudent[] };
+export type ClassRosterStudent = ClassStudent & {
+  /** Entrou sozinho pela prova (autocadastro), e não pelo professor. */
+  joinedViaExam: boolean;
+};
+
+export type ClassDetail = Omit<ClassSummary, "studentCount"> & {
+  selfEnroll: boolean;
+  subjects: { id: string; name: string }[];
+  students: ClassRosterStudent[];
+};
+
+/** Ordem de chamada: pelo número (1, 2, 10…), depois pelo nome. */
+export function byRollNumber(a: ClassStudent, b: ClassStudent) {
+  return (
+    collator.compare(a.registrationCode, b.registrationCode) ||
+    collator.compare(a.fullName, b.fullName)
+  );
+}
 
 export type StudentDetail = ClassStudent & {
   classes: { id: string; name: string; schoolYear: number | null; archived: boolean }[];
@@ -76,7 +93,7 @@ export async function getClassDetail(classId: string): Promise<ClassDetail> {
   const { data, error } = await supabase
     .from("classes")
     .select(
-      "id, name, school_year, archived_at, class_students(students(id, full_name, registration_code))",
+      "id, name, school_year, archived_at, self_enroll, class_subjects(subjects(id, name)), class_students(joined_via, students(id, full_name, registration_code))",
     )
     .eq("id", classId)
     .maybeSingle();
@@ -85,16 +102,31 @@ export async function getClassDetail(classId: string): Promise<ClassDetail> {
   if (!data) notFound();
 
   const students = data.class_students
-    .map(({ students: s }) => s)
-    .filter((s): s is NonNullable<typeof s> => s !== null)
-    .map((s) => ({ id: s.id, fullName: s.full_name, registrationCode: s.registration_code }))
-    .sort((a, b) => collator.compare(a.fullName, b.fullName));
+    .flatMap(({ students: s, joined_via }) =>
+      s
+        ? [
+            {
+              id: s.id,
+              fullName: s.full_name,
+              registrationCode: s.registration_code,
+              joinedViaExam: joined_via === "exam",
+            },
+          ]
+        : [],
+    )
+    .sort(byRollNumber);
+
+  const subjects = data.class_subjects
+    .flatMap(({ subjects: s }) => (s ? [{ id: s.id, name: s.name }] : []))
+    .sort((a, b) => collator.compare(a.name, b.name));
 
   return {
     id: data.id,
     name: data.name,
     schoolYear: data.school_year,
     archivedAt: data.archived_at,
+    selfEnroll: data.self_enroll,
+    subjects,
     students,
   };
 }

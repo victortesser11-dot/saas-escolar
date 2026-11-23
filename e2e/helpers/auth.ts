@@ -27,6 +27,20 @@ export async function signIn(page: Page, email: string, password: string) {
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
 }
 
+/** Adiciona um aluno pelo formulário manual da turma (abre o painel recolhido se preciso). */
+export async function addStudent(page: Page, fullName: string, code: string) {
+  const details = page
+    .locator("details")
+    .filter({ hasText: "Adicionar aluno manualmente" })
+    .filter({ visible: true });
+  if (!(await details.evaluate((el) => (el as HTMLDetailsElement).open))) {
+    await details.locator("summary").click();
+  }
+  await field(page, "Nome completo").fill(fullName);
+  await field(page, "Número na turma").fill(code);
+  await page.getByRole("button", { name: "Adicionar", exact: true }).click();
+}
+
 export async function signOut(page: Page) {
   await page.getByRole("button", { name: "Sair" }).click();
   await expect(page).toHaveURL(/\/entrar$/);

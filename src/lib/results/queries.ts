@@ -378,14 +378,19 @@ export type GradebookCell = {
   partial: boolean;
 };
 
-export async function getClassGradebook(classId: string) {
+/**
+ * Boletim da turma (alunos × provas). Com subjectId, só as provas daquela disciplina.
+ */
+export async function getClassGradebook(classId: string, subjectId?: string | null) {
   if (!isUuid(classId)) notFound();
   await getCurrentUser();
   const supabase = await createClient();
 
   const { data: turma, error } = await supabase
     .from("classes")
-    .select("id, name, school_year, class_students(students(id, full_name, registration_code))")
+    .select(
+      "id, name, school_year, class_subjects(subjects(id, name)), class_students(students(id, full_name, registration_code))",
+    )
     .eq("id", classId)
     .maybeSingle();
   if (error) throw new Error(`Falha ao carregar a turma: ${error.message}`);
@@ -393,12 +398,27 @@ export async function getClassGradebook(classId: string) {
 
   const { data: assignments, error: aError } = await supabase
     .from("exam_assignments")
-    .select("id, exam_id, opens_at, closes_at, closed_at, exams(title)")
+    .select("id, exam_id, opens_at, closes_at, closed_at, exams(title, subjects(id, name))")
     .eq("class_id", classId)
     .order("opens_at");
   if (aError) throw new Error(`Falha ao carregar provas: ${aError.message}`);
 
-  const assignmentIds = (assignments ?? []).map((a) => a.id);
+  // Disciplinas da turma + as das provas aplicadas (para os filtros).
+  const subjectMap = new Map<string, string>();
+  for (const { subjects: s } of turma.class_subjects) if (s) subjectMap.set(s.id, s.name);
+  for (const a of assignments ?? []) {
+    const s = a.exams?.subjects;
+    if (s) subjectMap.set(s.id, s.name);
+  }
+  const subjects = [...subjectMap]
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => collator.compare(a.name, b.name));
+  const activeSubject = subjectId ? (subjects.find((s) => s.id === subjectId) ?? null) : null;
+  const visibleAssignments = (assignments ?? []).filter(
+    (a) => !activeSubject || a.exams?.subjects?.id === activeSubject.id,
+  );
+
+  const assignmentIds = visibleAssignments.map((a) => a.id);
   const { data: attempts, error: tError } = assignmentIds.length
     ? await supabase
         .from("exam_attempts")
@@ -408,10 +428,11 @@ export async function getClassGradebook(classId: string) {
   if (tError) throw new Error(`Falha ao carregar notas: ${tError.message}`);
 
   const now = new Date();
-  const columns = (assignments ?? []).map((a) => ({
+  const columns = visibleAssignments.map((a) => ({
     assignmentId: a.id,
     examId: a.exam_id,
     title: a.exams?.title ?? "",
+    subjectName: a.exams?.subjects?.name ?? null,
     opensAt: a.opens_at,
     closed: new Date(a.closed_at ?? a.closes_at) <= now || new Date(a.closes_at) <= now,
   }));
@@ -427,7 +448,11 @@ export async function getClassGradebook(classId: string) {
   const students = turma.class_students
     .map(({ students: s }) => s)
     .filter((s): s is NonNullable<typeof s> => s !== null)
-    .sort((a, b) => collator.compare(a.full_name, b.full_name))
+    .sort(
+      (a, b) =>
+        collator.compare(a.registration_code, b.registration_code) ||
+        collator.compare(a.full_name, b.full_name),
+    )
     .map((s) => ({
       studentId: s.id,
       fullName: s.full_name,
@@ -451,6 +476,8 @@ export async function getClassGradebook(classId: string) {
 
   return {
     turma: { id: turma.id, name: turma.name, schoolYear: turma.school_year },
+    subjects,
+    activeSubject,
     columns,
     students,
   };
@@ -461,6 +488,7 @@ export type ClassOverview = {
   name: string;
   schoolYear: number | null;
   studentCount: number;
+  subjectNames: string[];
   examCount: number;
   meanPercent: number | null;
   pendingReviews: number;
@@ -475,7 +503,7 @@ export async function getGradesOverview(): Promise<ClassOverview[]> {
   const [classesResult, attemptsResult, assignmentsResult] = await Promise.all([
     supabase
       .from("classes")
-      .select("id, name, school_year, class_students(count)")
+      .select("id, name, school_year, class_students(count), class_subjects(subjects(name))")
       .eq("workspace_id", user.workspace.id)
       .is("archived_at", null),
     supabase
@@ -515,6 +543,9 @@ export async function getGradesOverview(): Promise<ClassOverview[]> {
         name: c.name,
         schoolYear: c.school_year,
         studentCount: c.class_students[0]?.count ?? 0,
+        subjectNames: c.class_subjects
+          .flatMap(({ subjects: s }) => (s ? [s.name] : []))
+          .sort((a, b) => collator.compare(a, b)),
         examCount: (assignmentsResult.data ?? []).filter((a) => a.class_id === c.id).length,
         meanPercent: mean,
         pendingReviews: finalized.filter((t) => t.grading_status === "pending_review").length,

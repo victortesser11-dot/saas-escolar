@@ -13,6 +13,7 @@ export default function NewClassPage() {
         action={createClass}
         defaults={{ name: "", schoolYear: "" }}
         submitLabel="Criar turma"
+        withSubjects
       />
     </div>
   );

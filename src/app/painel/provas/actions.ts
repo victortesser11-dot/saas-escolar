@@ -15,6 +15,8 @@ import type { FormState } from "@/lib/form-state";
 import { parsePoints } from "@/lib/questions/points";
 import { persistQuestion } from "@/lib/questions/persist";
 import { toQuestionErrors, type QuestionInput } from "@/lib/questions/schema";
+import { ensureSubjectId } from "@/lib/subjects/queries";
+import { optionalSubjectSchema } from "@/lib/subjects/schema";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
 
@@ -42,9 +44,23 @@ function dbMessage(error: { code?: string; message: string } | null) {
 // Prova
 // ---------------------------------------------------------------------------
 
+/** Disciplina digitada → id (criando se for nova). undefined = erro de validação. */
+async function resolveSubject(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  workspaceId: string,
+  raw: string,
+): Promise<{ id: string | null } | { error: string }> {
+  const parsed = optionalSubjectSchema.safeParse(raw);
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? GENERIC_SAVE_ERROR };
+  if (parsed.data === null) return { id: null };
+  const id = await ensureSubjectId(supabase, workspaceId, parsed.data);
+  return id ? { id } : { error: GENERIC_SAVE_ERROR };
+}
+
 export async function createExam(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = {
     title: text(formData, "title"),
+    subject: text(formData, "subject"),
     description: text(formData, "description"),
     instructions: text(formData, "instructions"),
   };
@@ -53,9 +69,17 @@ export async function createExam(_prev: FormState, formData: FormData): Promise<
 
   const user = await getCurrentUser();
   const supabase = await createClient();
+  const subject = await resolveSubject(supabase, user.workspace.id, values.subject);
+  if ("error" in subject)
+    return { status: "error", fieldErrors: { subject: subject.error }, values };
   const { data, error } = await supabase
     .from("exams")
-    .insert({ workspace_id: user.workspace.id, owner_id: user.id, ...parsed.data })
+    .insert({
+      workspace_id: user.workspace.id,
+      owner_id: user.id,
+      ...parsed.data,
+      subject_id: subject.id,
+    })
     .select("id")
     .single();
   if (error) return { status: "error", message: GENERIC_SAVE_ERROR, values };
@@ -71,6 +95,7 @@ export async function updateExamInfo(
 ): Promise<FormState> {
   const values = {
     title: text(formData, "title"),
+    subject: text(formData, "subject"),
     description: text(formData, "description"),
     instructions: text(formData, "instructions"),
   };
@@ -78,8 +103,15 @@ export async function updateExamInfo(
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error), values };
   if (!isUuid(examId)) return { status: "error", message: GENERIC_SAVE_ERROR, values };
 
+  const user = await getCurrentUser();
   const supabase = await createClient();
-  const { error } = await supabase.from("exams").update(parsed.data).eq("id", examId);
+  const subject = await resolveSubject(supabase, user.workspace.id, values.subject);
+  if ("error" in subject)
+    return { status: "error", fieldErrors: { subject: subject.error }, values };
+  const { error } = await supabase
+    .from("exams")
+    .update({ ...parsed.data, subject_id: subject.id })
+    .eq("id", examId);
   if (error) return { status: "error", message: dbMessage(error), values };
 
   revalidatePath("/painel/provas");

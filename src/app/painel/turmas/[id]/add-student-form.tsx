@@ -32,7 +32,7 @@ export function AddStudentForm({
       noValidate
       className="grid gap-4 rounded-md border-[1.5px] border-border bg-card p-4"
     >
-      <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,14rem)_auto]">
+      <div className="grid items-start gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,9rem)_auto]">
         <FormField
           name="fullName"
           label="Nome completo"
@@ -43,11 +43,12 @@ export function AddStudentForm({
         />
         <FormField
           name="registrationCode"
-          label="Matrícula"
+          label="Número na turma"
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
           required
+          placeholder="Ex.: 12"
           defaultValue={values?.registrationCode}
           error={state.fieldErrors?.registrationCode}
           className="font-mono uppercase"

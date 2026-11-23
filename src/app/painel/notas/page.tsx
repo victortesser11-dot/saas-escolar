@@ -109,8 +109,13 @@ async function Overview() {
                 </div>
               </dl>
               <span className="text-xs text-muted-foreground">
-                {pluralize(c.studentCount, "aluno", "alunos")}
-                {c.schoolYear ? ` · ${c.schoolYear}` : ""}
+                {[
+                  c.subjectNames.join(", "),
+                  pluralize(c.studentCount, "aluno", "alunos"),
+                  c.schoolYear ? String(c.schoolYear) : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </span>
             </Link>
           </li>

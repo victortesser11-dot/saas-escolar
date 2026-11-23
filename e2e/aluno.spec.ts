@@ -30,9 +30,9 @@ test("aluno faz a prova no celular: entra, responde, recarrega, envia e vê a no
     student.getByText("Código de acesso incorreto. Confira com o professor."),
   ).toBeVisible();
   await enter(student, exam, "Carla", "801");
-  await expect(student.getByText(/Nome e matrícula não conferem/)).toBeVisible();
+  await expect(student.getByText(/já está com outro nome na turma/)).toBeVisible();
 
-  // Entrada válida (nome em minúsculas, matrícula com espaço).
+  // Entrada válida (nome em minúsculas, número com espaço).
   await enter(student, exam, "lia", " 801 ");
   await expect(student.getByText("Questão 1 de 2")).toBeVisible();
   await expect(student.getByRole("timer")).toBeVisible();

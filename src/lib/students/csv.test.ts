@@ -36,8 +36,8 @@ describe("parseStudentsCsv", () => {
     expect(result.rows.map((r) => r.fullName)).toEqual(["Ana Souza"]);
     expect(result.errors).toEqual([
       { line: 3, message: "Informe o nome completo do aluno." },
-      { line: 4, message: "Informe a matrícula." },
-      { line: 5, message: "Use apenas letras, números e os símbolos . / _ - na matrícula." },
+      { line: 4, message: "Informe o número do aluno na turma." },
+      { line: 5, message: "Use apenas letras, números e os símbolos . / _ - no número." },
     ]);
   });
 
@@ -46,7 +46,7 @@ describe("parseStudentsCsv", () => {
     expect(result.rows).toHaveLength(1);
     expect(result.errors[0]).toEqual({
       line: 3,
-      message: "Matrícula 20A1 repetida (já aparece na linha 2).",
+      message: "Número 20A1 repetido (já aparece na linha 2).",
     });
   });
 
@@ -58,7 +58,7 @@ describe("parseStudentsCsv", () => {
 
   it("pede os títulos quando o cabeçalho não é reconhecido", () => {
     const result = parseStudentsCsv("Estudante X;Código Y\nAna Souza;1\n");
-    expect(result.fatal).toMatch(/Use os títulos "Nome" e "Matrícula"/);
+    expect(result.fatal).toMatch(/Use os títulos "Nome" e "Número"/);
   });
 
   it("recusa arquivo vazio", () => {

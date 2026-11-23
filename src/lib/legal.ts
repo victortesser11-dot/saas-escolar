@@ -4,8 +4,8 @@
  * atualize a versão e a data.
  */
 export const LEGAL = {
-  version: "2026-11-17",
-  updatedAt: "17 de novembro de 2026",
+  version: "2026-11-23",
+  updatedAt: "23 de novembro de 2026",
   product: "Avaliações Escolares",
   /** Nome completo ou razão social de quem oferece o serviço. */
   owner: "Victor Tesser Rodrigues Blasco",

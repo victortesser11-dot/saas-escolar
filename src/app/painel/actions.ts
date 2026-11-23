@@ -14,6 +14,8 @@ import {
 import type { FormState } from "@/lib/form-state";
 import { MAX_IMPORT_ROWS } from "@/lib/students/csv";
 import { classSchema, studentSchema } from "@/lib/students/validation";
+import { linkSubjectsToClass } from "@/lib/subjects/queries";
+import { parseSubjectList, subjectNameSchema } from "@/lib/subjects/schema";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
 
@@ -34,9 +36,15 @@ const classPath = (id: string) => `/painel/turmas/${id}`;
 // ---------------------------------------------------------------------------
 
 export async function createClass(_prev: FormState, formData: FormData): Promise<FormState> {
-  const values = { name: text(formData, "name"), schoolYear: text(formData, "schoolYear") };
+  const values = {
+    name: text(formData, "name"),
+    schoolYear: text(formData, "schoolYear"),
+    subjects: text(formData, "subjects"),
+  };
   const parsed = classSchema.safeParse(values);
   if (!parsed.success) return { status: "error", fieldErrors: toFieldErrors(parsed.error), values };
+  const subjects = parseSubjectList(values.subjects);
+  if (subjects.error) return { status: "error", fieldErrors: { subjects: subjects.error }, values };
 
   const user = await getCurrentUser();
   const supabase = await createClient();
@@ -52,9 +60,54 @@ export async function createClass(_prev: FormState, formData: FormData): Promise
     .single();
 
   if (error) return { status: "error", message: GENERIC_SAVE_ERROR, values };
+  // A turma já existe: se falhar aqui, o professor inclui as disciplinas na página dela.
+  await linkSubjectsToClass(supabase, user.workspace.id, data.id, subjects.names);
 
   revalidatePath("/painel", "layout");
   redirect(classPath(data.id));
+}
+
+// ---------------------------------------------------------------------------
+// Disciplinas e autocadastro da turma
+// ---------------------------------------------------------------------------
+
+export async function addSubjectToClass(
+  classId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const values = { subject: text(formData, "subject") };
+  const parsed = subjectNameSchema.safeParse(values.subject);
+  if (!parsed.success) {
+    return { status: "error", fieldErrors: { subject: parsed.error.issues[0]?.message }, values };
+  }
+  if (!isUuid(classId)) return { status: "error", message: GENERIC_SAVE_ERROR, values };
+
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const ok = await linkSubjectsToClass(supabase, user.workspace.id, classId, [parsed.data]);
+  if (!ok) return { status: "error", message: GENERIC_SAVE_ERROR, values };
+
+  refresh();
+  return { status: "success", message: `${parsed.data} incluída na turma.` };
+}
+
+export async function removeSubjectFromClass(classId: string, subjectId: string): Promise<void> {
+  if (!isUuid(classId) || !isUuid(subjectId)) return;
+  const supabase = await createClient();
+  await supabase
+    .from("class_subjects")
+    .delete()
+    .eq("class_id", classId)
+    .eq("subject_id", subjectId);
+  refresh();
+}
+
+export async function setClassSelfEnroll(classId: string, enabled: boolean): Promise<void> {
+  if (!isUuid(classId)) return;
+  const supabase = await createClient();
+  await supabase.from("classes").update({ self_enroll: enabled }).eq("id", classId);
+  refresh();
 }
 
 export async function updateClass(
@@ -111,8 +164,8 @@ export async function deleteClass(classId: string): Promise<void> {
 // ---------------------------------------------------------------------------
 
 /**
- * Adiciona um aluno à turma. Se a matrícula já existir no espaço, o aluno existente
- * é vinculado (mesma regra da importação, executada pela função import_students).
+ * Adiciona um aluno à turma (mesma regra da importação, função import_students):
+ * o número é único na turma.
  */
 export async function addStudentToClass(
   classId: string,
@@ -141,7 +194,7 @@ export async function addStudentToClass(
     return {
       status: "error",
       fieldErrors: {
-        registrationCode: `A matrícula ${parsed.data.registrationCode} já está nesta turma.`,
+        registrationCode: `O número ${parsed.data.registrationCode} já está nesta turma.`,
       },
       values,
     };
@@ -150,10 +203,7 @@ export async function addStudentToClass(
   refresh();
   return {
     status: "success",
-    message:
-      summary.existing > 0
-        ? `A matrícula ${parsed.data.registrationCode} já estava cadastrada no seu espaço. O aluno foi adicionado à turma com o nome já cadastrado.`
-        : `${parsed.data.fullName} foi adicionado(a) à turma.`,
+    message: `${parsed.data.fullName} foi adicionado(a) à turma.`,
   };
 }
 
@@ -239,7 +289,7 @@ export async function updateStudent(
   if (isUniqueViolation(error)) {
     return {
       status: "error",
-      fieldErrors: { registrationCode: "Já existe outro aluno com essa matrícula no seu espaço." },
+      fieldErrors: { registrationCode: "Já existe outro aluno com esse número na turma." },
       values,
     };
   }

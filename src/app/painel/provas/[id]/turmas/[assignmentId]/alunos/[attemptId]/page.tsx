@@ -51,7 +51,7 @@ async function Content({ params }: Pick<Props, "params">) {
       <title>{`${attempt.studentName} · Respostas · Avaliações Escolares`}</title>
       <PageHeader
         back={{ href: back, label: "Voltar à turma" }}
-        eyebrow={`Matrícula ${attempt.registrationCode}${attempt.attemptNumber > 1 ? ` · tentativa ${attempt.attemptNumber}` : ""}`}
+        eyebrow={`Nº ${attempt.registrationCode}${attempt.attemptNumber > 1 ? ` · tentativa ${attempt.attemptNumber}` : ""}`}
         title={attempt.studentName}
       />
 

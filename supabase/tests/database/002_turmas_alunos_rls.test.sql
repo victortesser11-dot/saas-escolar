@@ -85,7 +85,7 @@ select is(
     '[{"full_name": "Ana S.", "registration_code": "2024A013"},
       {"full_name": "Davi Rocha", "registration_code": "2024A016"}]'::jsonb
   ),
-  '{"created": 1, "existing": 1, "linked": 1, "already_in_class": 1}'::jsonb,
+  '{"created": 1, "existing": 0, "linked": 1, "already_in_class": 1}'::jsonb,
   'reimportar não duplica alunos nem vínculos'
 );
 

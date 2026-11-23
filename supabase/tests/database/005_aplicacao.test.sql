@@ -57,6 +57,9 @@ values ((select id from ctx where name = 'ws'), 'eeeeeeee-0000-0000-0000-0000000
         now() - interval '1 hour', now() + interval '1 hour');
 insert into ctx (name, txt) select 'code2', public_code from public.exam_assignments where exam_id = 'eeeeeeee-0000-0000-0000-000000000002';
 
+-- Lista fechada: autocadastro desligado (o autocadastro é testado em 007).
+update public.classes set self_enroll = false where id = 'cccccccc-0000-0000-0000-000000000001';
+
 -- -----------------------------------------------------------------------------
 -- Aluno (anônimo)
 -- -----------------------------------------------------------------------------
@@ -73,9 +76,9 @@ select is(public.start_attempt((select txt from ctx where name = 'code1'), '101'
 select is(public.start_attempt((select txt from ctx where name = 'code1'), '101', 'Ana', '9999', null) ->> 'error',
   'access_code_invalid', 'código de acesso errado');
 select is(public.start_attempt((select txt from ctx where name = 'code1'), '555', 'Ana', '1234', null) ->> 'error',
-  'student_not_found', 'matrícula fora da turma');
+  'student_not_found', 'número fora da turma (lista fechada)');
 select is(public.start_attempt((select txt from ctx where name = 'code1'), '101', 'Carla', '1234', null) ->> 'error',
-  'student_not_found', 'nome não confere com a matrícula');
+  'name_mismatch', 'nome não confere com o número');
 
 insert into ctx (name, txt)
 select 'ana1', public.start_attempt((select txt from ctx where name = 'code1'), ' 101 ', 'ana souza', '1234', null) ->> 'token';
@@ -184,8 +187,8 @@ insert into ctx (name, txt) select 'ana_sorteio', public.start_attempt((select t
 select is(jsonb_array_length(public.get_attempt((select txt from ctx where name = 'ana_sorteio')) -> 'questions'), 2, 'sorteia 2 de 3 questões');
 
 -- Limite de tentativas erradas por matrícula.
-select public.start_attempt((select txt from ctx where name = 'code1'), '999', 'X', '0000', null) from generate_series(1, 5);
-select is(public.start_attempt((select txt from ctx where name = 'code1'), '999', 'X', '1234', null) ->> 'error',
+select public.start_attempt((select txt from ctx where name = 'code1'), '999', 'Xavier', '0000', null) from generate_series(1, 5);
+select is(public.start_attempt((select txt from ctx where name = 'code1'), '999', 'Xavier', '1234', null) ->> 'error',
   'too_many_attempts', 'bloqueio após 5 tentativas erradas');
 
 -- Período.

@@ -16,15 +16,15 @@ export const studentSchema = z.object({
         .max(120, { error: "O nome pode ter no máximo 120 caracteres." }),
     ),
   registrationCode: z
-    .string({ error: "Informe a matrícula." })
+    .string({ error: "Informe o número do aluno na turma." })
     .transform(normalizeRegistrationCode)
     .pipe(
       z
         .string()
-        .min(1, { error: "Informe a matrícula." })
-        .max(40, { error: "A matrícula pode ter no máximo 40 caracteres." })
+        .min(1, { error: "Informe o número do aluno na turma." })
+        .max(40, { error: "O número pode ter no máximo 40 caracteres." })
         .regex(REGISTRATION_CODE_PATTERN, {
-          error: "Use apenas letras, números e os símbolos . / _ - na matrícula.",
+          error: "Use apenas letras, números e os símbolos . / _ - no número.",
         }),
     ),
 });
@@ -53,6 +53,7 @@ export const classSchema = z.object({
       }
       return year;
     }),
+  subjects: z.string().optional(),
 });
 
 export type ClassInput = z.output<typeof classSchema>;

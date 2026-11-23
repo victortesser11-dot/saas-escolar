@@ -10,10 +10,12 @@ type ClassFormProps = {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   defaults: { name: string; schoolYear: string };
   submitLabel: string;
+  /** Mostra o campo de disciplinas (só na criação; depois, a página da turma gerencia). */
+  withSubjects?: boolean;
 };
 
 /** Formulário de criação/edição de turma. */
-export function ClassForm({ action, defaults, submitLabel }: ClassFormProps) {
+export function ClassForm({ action, defaults, submitLabel, withSubjects = false }: ClassFormProps) {
   const [state, formAction] = useActionState(action, initialFormState);
   const values = state.values ?? defaults;
 
@@ -23,13 +25,25 @@ export function ClassForm({ action, defaults, submitLabel }: ClassFormProps) {
       <FormField
         name="name"
         label="Nome da turma"
-        placeholder="Ex.: 7º ano B — Matemática"
+        placeholder="Ex.: 7º ano B"
         required
         maxLength={80}
         autoComplete="off"
         defaultValue={values.name}
         error={state.fieldErrors?.name}
       />
+      {withSubjects ? (
+        <FormField
+          name="subjects"
+          label="Disciplinas que você dá nesta turma"
+          placeholder="Ex.: Matemática, Ciências"
+          maxLength={600}
+          autoComplete="off"
+          hint="Opcional. Separe por vírgula. Também dá para incluir depois."
+          defaultValue={(values as { subjects?: string }).subjects ?? ""}
+          error={state.fieldErrors?.subjects}
+        />
+      ) : null}
       <FormField
         name="schoolYear"
         label="Ano letivo"

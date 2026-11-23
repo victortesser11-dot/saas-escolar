@@ -29,7 +29,7 @@ async function StudentContent({ params }: Pick<PageProps<"/painel/alunos/[id]">,
             ? { href: `/painel/turmas/${firstClass.id}`, label: firstClass.name }
             : { href: "/painel", label: "Turmas" }
         }
-        eyebrow={`Matrícula ${student.registrationCode}`}
+        eyebrow={`Nº ${student.registrationCode}`}
         title={student.fullName}
       />
 

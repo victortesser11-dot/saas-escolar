@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { field, signUpAndConfirm } from "./helpers/auth";
+import { addStudent, field, signUpAndConfirm } from "./helpers/auth";
 import { uniqueEmail } from "./helpers/mailpit";
 
 /** Provas (Etapa 4): montar, publicar e aplicar em turma. */
@@ -13,9 +13,7 @@ async function createClassWithStudents(page: Page, name: string) {
     ["Ana Souza", "101"],
     ["Bruno Lima", "102"],
   ]) {
-    await field(page, "Nome completo").fill(student);
-    await field(page, "Matrícula").fill(code);
-    await page.getByRole("button", { name: "Adicionar" }).click();
+    await addStudent(page, student, code);
     await expect(page.getByText(`${student} foi adicionado(a) à turma.`)).toBeVisible();
   }
 }

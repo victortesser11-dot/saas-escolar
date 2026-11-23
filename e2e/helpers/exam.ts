@@ -1,5 +1,5 @@
 import { expect, type Browser, type Page } from "@playwright/test";
-import { field, signUpAndConfirm } from "./auth";
+import { addStudent, field, signUpAndConfirm } from "./auth";
 import { uniqueEmail } from "./mailpit";
 
 /** Passos compartilhados: professor monta e aplica uma prova; aluno entra pelo link. */
@@ -13,23 +13,36 @@ export const STUDENTS = [
 
 export async function teacherAppliesExam(
   page: Page,
-  { withEssay = false }: { withEssay?: boolean } = {},
+  {
+    withEssay = false,
+    withStudents = true,
+    subject,
+    classSubjects,
+  }: {
+    withEssay?: boolean;
+    /** false: turma sem lista (alunos entram pela prova). */
+    withStudents?: boolean;
+    /** Disciplina da prova. */
+    subject?: string;
+    /** Disciplinas informadas ao criar a turma ("Matemática, Ciências"). */
+    classSubjects?: string;
+  } = {},
 ): Promise<Applied> {
   await signUpAndConfirm(page, "Vera Lins", uniqueEmail());
 
   await page.goto("/painel/turmas/nova");
   await field(page, "Nome da turma").fill("8º B");
+  if (classSubjects) await field(page, "Disciplinas que você dá nesta turma").fill(classSubjects);
   await page.getByRole("button", { name: "Criar turma" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "8º B" })).toBeVisible();
-  for (const [name, code] of STUDENTS) {
-    await field(page, "Nome completo").fill(name);
-    await field(page, "Matrícula").fill(code);
-    await page.getByRole("button", { name: "Adicionar" }).click();
+  for (const [name, code] of withStudents ? STUDENTS : []) {
+    await addStudent(page, name, code);
     await expect(page.getByText(`${name} foi adicionado(a) à turma.`)).toBeVisible();
   }
 
   await page.goto("/painel/provas/nova");
   await field(page, "Nome da prova").fill("Mini prova");
+  if (subject) await field(page, "Disciplina").fill(subject);
   await page.getByRole("button", { name: "Criar e adicionar questões" }).click();
 
   await page.getByRole("link", { name: "Escrever questão" }).first().click();
@@ -92,7 +105,7 @@ export async function enterExam(
   code?: string,
 ) {
   await page.getByLabel("Seu nome").fill(name);
-  await page.getByLabel("Matrícula").fill(registration);
+  await page.getByLabel("Seu número na turma").fill(registration);
   await page.getByLabel("Código de acesso").fill(code ?? exam.accessCode);
   await page.getByRole("button", { name: "Começar prova" }).click();
 }
