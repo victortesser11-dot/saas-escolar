@@ -34,7 +34,7 @@ const CODE_HEADERS = [
 ];
 
 /** "Matrícula " → "matricula" (sem acentos, espaços ou pontuação). */
-function normalizeHeader(value: string) {
+export function normalizeHeader(value: string) {
   return value
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")

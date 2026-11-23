@@ -9,14 +9,14 @@ import {
   Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { useId, useState, useTransition, type DragEvent } from "react";
+import { useState, useTransition } from "react";
+import { CsvFilePicker, readCsvFile } from "@/components/csv-file-picker";
 import { FormMessage } from "@/components/form/form-message";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { pluralize } from "@/lib/classes/messages";
-import { decodeCsvBytes, parseStudentsCsv, type CsvParseResult } from "@/lib/students/csv";
+import { parseStudentsCsv, type CsvParseResult } from "@/lib/students/csv";
 import type { ImportResult } from "../../../actions";
 
-const MAX_FILE_BYTES = 1024 * 1024; // 1 MB é muito mais do que 500 alunos ocupam.
 const PREVIEW_LIMIT = 100;
 
 /** Modelo com BOM, para o Excel abrir os acentos corretamente. */
@@ -42,19 +42,12 @@ export function ImportStudents({
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
-    if (/\.xlsx?$/i.test(file.name)) {
-      setStep({
-        kind: "pick",
-        error:
-          'Esse arquivo é do Excel. Salve-o como CSV: no Excel, use "Arquivo › Salvar como" e escolha "CSV (separado por vírgulas)".',
-      });
+    const read = await readCsvFile(file);
+    if ("error" in read) {
+      setStep({ kind: "pick", error: read.error });
       return;
     }
-    if (file.size > MAX_FILE_BYTES) {
-      setStep({ kind: "pick", error: "O arquivo é grande demais. Envie no máximo 1 MB." });
-      return;
-    }
-    const text = decodeCsvBytes(await file.arrayBuffer());
+    const text = read.text;
     const result = parseStudentsCsv(text);
     if (result.fatal) {
       setStep({ kind: "pick", error: result.fatal });
@@ -208,83 +201,38 @@ export function ImportStudents({
     );
   }
 
-  return <FilePicker error={step.error} onFile={handleFile} />;
-}
-
-function FilePicker({
-  error,
-  onFile,
-}: {
-  error?: string;
-  onFile: (file: File | undefined) => void;
-}) {
-  const inputId = useId();
-  const [dragging, setDragging] = useState(false);
-
-  function onDrop(event: DragEvent<HTMLLabelElement>) {
-    event.preventDefault();
-    setDragging(false);
-    onFile(event.dataTransfer.files[0]);
-  }
-
   return (
-    <div className="grid max-w-2xl gap-6">
-      <label
-        htmlFor={inputId}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={onDrop}
-        data-dragging={dragging || undefined}
-        className="bg-graph grid cursor-pointer justify-items-center gap-3 rounded-md border-[1.5px] border-dashed border-foreground/50 px-6 py-12 text-center transition-colors outline-none focus-within:ring-4 focus-within:ring-ring hover:border-foreground data-dragging:border-foreground data-dragging:bg-mark/30"
-      >
-        <span className="flex size-12 items-center justify-center rounded-md border-2 border-foreground bg-card">
-          <Upload className="size-5" aria-hidden />
-        </span>
-        <span className="font-semibold">Escolha o arquivo CSV ou arraste para cá</span>
-        <span className="text-sm text-muted-foreground">
+    <CsvFilePicker
+      error={step.error}
+      onFile={handleFile}
+      hint={
+        <>
           Até 500 alunos por arquivo. Colunas: <span className="font-mono">Nome</span> e{" "}
           <span className="font-mono">Número</span>.
-        </span>
-        <input
-          id={inputId}
-          type="file"
-          accept=".csv,text/csv"
-          className="sr-only"
-          onChange={(event) => {
-            onFile(event.target.files?.[0]);
-            event.target.value = "";
-          }}
-        />
-      </label>
-
-      <FormMessage type="error" message={error} />
-
-      <div className="grid gap-3 text-sm">
-        <h2 className="font-semibold">Como preparar a planilha</h2>
-        <ol className="grid list-decimal gap-1.5 pl-5 text-muted-foreground">
-          <li>
-            Use uma coluna com o título <strong className="text-foreground">Nome</strong> e outra
-            com o título <strong className="text-foreground">Número</strong> (nº da chamada; também
-            aceitamos Matrícula ou RA). Outras colunas são ignoradas.
-          </li>
-          <li>
-            No Excel ou no Google Planilhas, salve ou baixe como{" "}
-            <strong className="text-foreground">CSV</strong>.
-          </li>
-          <li>Números que já estão na turma não são duplicados.</li>
-        </ol>
-        <a
-          href={TEMPLATE_HREF}
-          download="modelo-alunos.csv"
-          className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}
-        >
-          <Download aria-hidden />
-          Baixar planilha modelo
-        </a>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <h2 className="font-semibold">Como preparar a planilha</h2>
+      <ol className="grid list-decimal gap-1.5 pl-5 text-muted-foreground">
+        <li>
+          Use uma coluna com o título <strong className="text-foreground">Nome</strong> e outra com
+          o título <strong className="text-foreground">Número</strong> (nº da chamada; também
+          aceitamos Matrícula ou RA). Outras colunas são ignoradas.
+        </li>
+        <li>
+          No Excel ou no Google Planilhas, salve ou baixe como{" "}
+          <strong className="text-foreground">CSV</strong>.
+        </li>
+        <li>Números que já estão na turma não são duplicados.</li>
+      </ol>
+      <a
+        href={TEMPLATE_HREF}
+        download="modelo-alunos.csv"
+        className={buttonVariants({ variant: "outline", size: "sm", className: "w-fit" })}
+      >
+        <Download aria-hidden />
+        Baixar planilha modelo
+      </a>
+    </CsvFilePicker>
   );
 }

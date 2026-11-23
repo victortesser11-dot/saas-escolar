@@ -159,6 +159,7 @@ Escola
 ### 5.9 Retorno do piloto (2026-11-23)
 - RF-58 **Disciplinas dentro da turma**: a turma tem várias disciplinas (ex.: 7º B com Matemática e Ciências), sem duplicar turma nem alunos. A prova tem uma disciplina; aplicá-la inclui a disciplina na turma. Provas e boletim da turma ficam separados por disciplina.
 - RF-59 **Cadastro do aluno pela prova**: a lista da turma deixa de ser obrigatória. O aluno informa nome e número na turma; se o número não estiver na lista, ele é incluído e marcado como "entrou pela prova" para conferência do professor. Número já usado com outro primeiro nome é recusado. O professor pode **fechar a lista** por turma.
+- RF-61 **Importar prova por planilha**: o professor baixa um modelo (CSV), escreve uma questão por linha (tipo, enunciado, alternativas A–J, correta, valor, explicação) e envia na página da prova. Prévia com erros por linha; as questões válidas entram de uma vez (tudo ou nada) e também vão para o banco de questões.
 - RF-60 O número do aluno é único **por turma** (antes, a matrícula era única no espaço do professor). Números só com dígitos ignoram zeros à esquerda ("07" = "7").
 
 ### 5.8 Dashboard de notas (pedido de 2026-11-17)
@@ -347,4 +348,4 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | 0.3 | 2026-11-17 | Decididas Q-01 a Q-09 e Q-11 conforme propostas; login por e-mail/senha e Google; código de acesso opcional por prova. Q-10 segue em aberto. |
 | 0.4 | 2026-11-17 | Fluxo "prova primeiro": questões escritas dentro da prova (banco automático por trás); prova aplicada em várias turmas, cada uma com link, período e código próprios (seção 4.1). |
 | 0.5 | 2026-11-17 | Dashboard de notas por prova e turma, boletim da turma e visão geral (RF-53 a RF-57). |
-| 0.6 | 2026-11-23 | Retorno do piloto: disciplinas dentro da turma, cadastro do aluno pela prova e número único por turma (RF-58 a RF-60; Q-06 revista). |
+| 0.6 | 2026-11-23 | Retorno do piloto: disciplinas dentro da turma, cadastro do aluno pela prova e número único por turma (RF-58 a RF-60; Q-06 revista) e importação de prova por planilha (RF-61). |

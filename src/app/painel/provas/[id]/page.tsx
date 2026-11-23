@@ -1,4 +1,4 @@
-import { BookOpen, Pencil, Plus, Send, Trash2, Undo2 } from "lucide-react";
+import { BookOpen, Pencil, Plus, Send, Trash2, Undo2, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ConfirmAction } from "@/components/confirm-action";
@@ -252,6 +252,13 @@ function AddQuestionButtons({ examId }: { examId: string }) {
       >
         <BookOpen aria-hidden />
         Trazer do banco
+      </Link>
+      <Link
+        href={`/painel/provas/${examId}/importar`}
+        className={buttonVariants({ variant: "outline" })}
+      >
+        <FileSpreadsheet aria-hidden />
+        Importar planilha
       </Link>
     </>
   );

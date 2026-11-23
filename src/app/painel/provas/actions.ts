@@ -14,7 +14,8 @@ import {
 import type { FormState } from "@/lib/form-state";
 import { parsePoints } from "@/lib/questions/points";
 import { persistQuestion } from "@/lib/questions/persist";
-import { toQuestionErrors, type QuestionInput } from "@/lib/questions/schema";
+import { MAX_IMPORT_QUESTIONS } from "@/lib/questions/csv";
+import { questionSchema, toQuestionErrors, type QuestionInput } from "@/lib/questions/schema";
 import { ensureSubjectId } from "@/lib/subjects/queries";
 import { optionalSubjectSchema } from "@/lib/subjects/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -189,6 +190,60 @@ export async function saveQuestionToExam(
       ? `${examPath(examId)}/questoes/nova?tipo=${result.type}&salva=${Date.now()}`
       : examPath(examId),
   );
+}
+
+export type ImportQuestionsResult =
+  { status: "success"; count: number } | { status: "error"; message: string };
+
+/**
+ * Importa as questões lidas da planilha (já conferidas no navegador; validadas de novo
+ * aqui). Todas entram numa única transação no banco: ou todas, ou nenhuma.
+ */
+export async function importQuestionsToExam(
+  examId: string,
+  inputs: QuestionInput[],
+): Promise<ImportQuestionsResult> {
+  if (!isUuid(examId) || !Array.isArray(inputs)) {
+    return { status: "error", message: GENERIC_SAVE_ERROR };
+  }
+  if (inputs.length === 0) return { status: "error", message: "Nenhuma questão para importar." };
+  if (inputs.length > MAX_IMPORT_QUESTIONS) {
+    return {
+      status: "error",
+      message: `Importe no máximo ${MAX_IMPORT_QUESTIONS} questões por vez.`,
+    };
+  }
+
+  const questions = [];
+  for (const input of inputs) {
+    const parsed = questionSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: "A planilha tem dados inválidos. Revise e envie de novo.",
+      };
+    }
+    const q = parsed.data;
+    questions.push({
+      type: q.type,
+      stem: q.stem,
+      explanation: q.explanation,
+      points: q.points,
+      tags: q.tags,
+      options: q.options.map((o) => ({ body: o.body, is_correct: o.isCorrect })),
+    });
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("import_exam_questions", {
+    p_exam_id: examId,
+    p_questions: questions,
+  });
+  if (error) return { status: "error", message: dbMessage(error) };
+
+  revalidatePath(examPath(examId));
+  revalidatePath("/painel/questoes");
+  return { status: "success", count: data ?? questions.length };
 }
 
 export async function addQuestionsFromBank(examId: string, formData: FormData): Promise<void> {

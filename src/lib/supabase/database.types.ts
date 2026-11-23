@@ -458,6 +458,9 @@ isOneToOne: false
 "grant_release":
 { Args: { "p_assignment_id": string,"p_extra_minutes": number,"p_kind": Database["public"]['Enums']["release_kind"],"p_reason": string,"p_student_id": string }; Returns: Json
                            },
+"import_exam_questions":
+{ Args: { "p_exam_id": string,"p_questions": Json }; Returns: number
+                           },
 "import_students":
 { Args: { "p_class_id": string,"p_students": Json }; Returns: Json
                            },
