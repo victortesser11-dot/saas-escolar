@@ -336,7 +336,7 @@ function AssignmentsSection({ exam, now }: { exam: ExamDetail; now: Date }) {
                       variant="ghost"
                     />
                   ) : null}
-                  {status === "scheduled" ? (
+                  {assignment.attemptCount === 0 ? (
                     <ConfirmAction
                       action={deleteAssignment.bind(null, assignment.id)}
                       label="Remover aplicação"

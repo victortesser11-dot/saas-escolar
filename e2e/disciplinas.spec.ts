@@ -80,3 +80,23 @@ test("professor inclui e tira disciplinas da turma", async ({ page }) => {
   await page.getByRole("button", { name: "Tirar História da turma" }).click();
   await expect(subjects).toHaveCount(0);
 });
+
+test("aplicação de teste sem alunos pode ser removida e refeita na mesma turma", async ({
+  page,
+}) => {
+  await teacherAppliesExam(page, { withStudents: false });
+  const card = page.locator("li").filter({ hasText: "Código de acesso" }).filter({ visible: true });
+  await expect(card).toHaveCount(1);
+
+  // A prova já está aberta, mas nenhum aluno começou: dá para remover.
+  await card.getByRole("button", { name: "Remover aplicação" }).click();
+  await card.getByRole("button", { name: "Remover desta turma" }).click();
+  await expect(card).toHaveCount(0);
+
+  // A turma volta para a lista; o aviso explica o cadastro pela prova.
+  await page.getByRole("link", { name: "Aplicar em turma" }).first().click();
+  await page.getByRole("combobox", { name: "Turma", exact: true }).selectOption({ index: 1 });
+  await expect(page.getByText(/tudo bem: cada aluno entra com nome e número/)).toBeVisible();
+  await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
+  await expect(page.getByText(/Prova aplicada/)).toBeVisible();
+});

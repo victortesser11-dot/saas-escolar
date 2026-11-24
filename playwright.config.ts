@@ -15,6 +15,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // Cada teste cria contas e provas; mais que 2 em paralelo sobrecarrega o servidor de desenvolvimento.
   workers: process.env.CI ? 1 : 2,
+  // O servidor de desenvolvimento compila cada página na primeira visita; sob carga
+  // (bateria completa) isso passa dos 5 s padrão sem indicar defeito.
+  timeout: 60_000,
+  expect: { timeout: 10_000 },
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL,

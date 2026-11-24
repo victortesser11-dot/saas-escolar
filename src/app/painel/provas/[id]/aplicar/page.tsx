@@ -64,6 +64,7 @@ async function Content({ params }: Pick<Props, "params">) {
             id: c.id,
             label: `${c.name}${c.schoolYear ? ` (${c.schoolYear})` : ""} — ${c.studentCount} ${c.studentCount === 1 ? "aluno" : "alunos"}`,
             empty: c.studentCount === 0,
+            selfEnroll: c.selfEnroll,
           }))}
           timeLimitMinutes={exam.timeLimitMinutes}
         />

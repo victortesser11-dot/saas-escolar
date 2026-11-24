@@ -14,6 +14,7 @@ export type ClassSummary = {
   name: string;
   schoolYear: number | null;
   archivedAt: string | null;
+  selfEnroll: boolean;
   studentCount: number;
 };
 
@@ -54,7 +55,7 @@ export async function listClasses({ archived }: { archived: boolean }): Promise<
 
   let query = supabase
     .from("classes")
-    .select("id, name, school_year, archived_at, class_students(count)")
+    .select("id, name, school_year, archived_at, self_enroll, class_students(count)")
     .eq("workspace_id", user.workspace.id);
   query = archived ? query.not("archived_at", "is", null) : query.is("archived_at", null);
 
@@ -67,6 +68,7 @@ export async function listClasses({ archived }: { archived: boolean }): Promise<
       name: row.name,
       schoolYear: row.school_year,
       archivedAt: row.archived_at,
+      selfEnroll: row.self_enroll,
       studentCount: row.class_students[0]?.count ?? 0,
     }))
     .sort((a, b) => (b.schoolYear ?? 0) - (a.schoolYear ?? 0) || collator.compare(a.name, b.name));

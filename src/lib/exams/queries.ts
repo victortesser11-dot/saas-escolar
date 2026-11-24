@@ -61,6 +61,8 @@ export type ExamAssignmentItem = {
   opensAt: string;
   closesAt: string;
   closedAt: string | null;
+  /** Alunos que já começaram (com algum, a aplicação não pode ser removida). */
+  attemptCount: number;
 };
 
 export type ExamDetail = {
@@ -95,7 +97,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
        exam_questions(id, question_id, points, position, content,
          questions(type, stem, question_options(count))),
        exam_assignments(id, class_id, public_code, access_code, opens_at, closes_at, closed_at,
-         classes(name))`,
+         classes(name), exam_attempts(count))`,
     )
     .eq("id", examId)
     .maybeSingle();
@@ -130,6 +132,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
       opensAt: a.opens_at,
       closesAt: a.closes_at,
       closedAt: a.closed_at,
+      attemptCount: a.exam_attempts[0]?.count ?? 0,
     }))
     .sort((a, b) => a.opensAt.localeCompare(b.opensAt));
 

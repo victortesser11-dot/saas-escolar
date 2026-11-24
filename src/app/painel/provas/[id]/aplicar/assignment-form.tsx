@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AssignmentInput } from "../../actions";
 
-type ClassOption = { id: string; label: string; empty: boolean };
+type ClassOption = { id: string; label: string; empty: boolean; selfEnroll: boolean };
 type Action = (
   input: AssignmentInput,
 ) => Promise<{ status: "error"; message?: string; errors: Record<string, string> }>;
@@ -119,12 +119,19 @@ function AssignmentFormBody({
           ))}
         </select>
         {errors.classId ? <p className="text-xs text-destructive">{errors.classId}</p> : null}
-        {selected?.empty ? (
+        {selected?.empty && selected.selfEnroll ? (
+          <p className="text-xs text-muted-foreground">
+            A turma ainda não tem lista de alunos, e tudo bem: cada aluno entra com nome e número e
+            já fica cadastrado na turma. Recomendamos exigir o código de acesso, para só entrar quem
+            está na sala.
+          </p>
+        ) : null}
+        {selected?.empty && !selected.selfEnroll ? (
           <p className="text-xs text-pen">
-            Esta turma ainda não tem alunos. Só alunos cadastrados na turma conseguem entrar na
+            Esta turma está com a lista fechada e ainda não tem alunos: ninguém conseguirá entrar na
             prova.{" "}
             <Link href={`/painel/turmas/${selected.id}`} className="underline underline-offset-2">
-              Cadastrar alunos
+              Cadastrar alunos ou abrir a lista
             </Link>
           </p>
         ) : null}

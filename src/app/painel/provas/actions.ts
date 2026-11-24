@@ -370,7 +370,7 @@ export async function closeAssignmentNow(assignmentId: string): Promise<void> {
 export async function deleteAssignment(assignmentId: string): Promise<void> {
   if (!isUuid(assignmentId)) return;
   const supabase = await createClient();
-  // A RLS só permite remover aplicações que ainda não abriram.
+  // A RLS só permite remover aplicações em que nenhum aluno começou a prova.
   await supabase.from("exam_assignments").delete().eq("id", assignmentId);
   refresh();
 }
