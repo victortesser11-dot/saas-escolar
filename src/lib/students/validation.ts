@@ -15,17 +15,21 @@ export const studentSchema = z.object({
         .min(2, { error: "Informe o nome completo do aluno." })
         .max(120, { error: "O nome pode ter no máximo 120 caracteres." }),
     ),
+  /** Opcional: vazio vira null (o aluno é reconhecido pelo nome completo). */
   registrationCode: z
-    .string({ error: "Informe o número do aluno na turma." })
-    .transform(normalizeRegistrationCode)
+    .string()
+    .optional()
+    .transform((value) => normalizeRegistrationCode(value ?? ""))
     .pipe(
-      z
-        .string()
-        .min(1, { error: "Informe o número do aluno na turma." })
-        .max(40, { error: "O número pode ter no máximo 40 caracteres." })
-        .regex(REGISTRATION_CODE_PATTERN, {
-          error: "Use apenas letras, números e os símbolos . / _ - no número.",
-        }),
+      z.union([
+        z.literal("").transform(() => null),
+        z
+          .string()
+          .max(40, { error: "O número pode ter no máximo 40 caracteres." })
+          .regex(REGISTRATION_CODE_PATTERN, {
+            error: "Use apenas letras, números e os símbolos . / _ - no número.",
+          }),
+      ]),
     ),
 });
 

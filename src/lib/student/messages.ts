@@ -6,10 +6,13 @@ const ENTRY_ERRORS: Record<string, string> = {
   access_code_required: "Digite o código de acesso que o professor mostrou.",
   access_code_invalid: "Código de acesso incorreto. Confira com o professor.",
   student_not_found:
-    "Esse número não está na lista da turma. Confira seu número ou fale com o professor.",
+    "Você não está na lista desta turma. Confira seu nome e número ou fale com o professor.",
   name_mismatch:
     "Esse número já está com outro nome na turma. Confira seu número e digite seu primeiro nome como está na chamada.",
-  invalid_student: "Digite seu nome e seu número na turma.",
+  invalid_student: "Confira seu nome e seu número na turma.",
+  full_name_required: "Sem o número, escreva seu nome e sobrenome, como na chamada.",
+  ambiguous_name:
+    "Há mais de um aluno com esse nome na turma. Digite também o seu número (peça ao professor).",
   class_full: "A turma atingiu o limite de alunos. Fale com o professor.",
   too_many_attempts: "Muitas tentativas erradas. Aguarde alguns minutos ou chame o professor.",
   already_submitted: "Você já enviou esta prova.",

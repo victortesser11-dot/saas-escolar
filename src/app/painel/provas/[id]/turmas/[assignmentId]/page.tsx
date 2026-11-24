@@ -23,6 +23,7 @@ import { formatPoints } from "@/lib/questions/points";
 import { questionTypeInfo } from "@/lib/questions/types";
 import { getAssignmentReport } from "@/lib/results/queries";
 import { histogram, SITUATION_ORDER, summarize } from "@/lib/results/stats";
+import { rollLabel } from "@/lib/students/roll-order";
 import { StudentActions } from "./student-actions";
 
 type Props = PageProps<"/painel/provas/[id]/turmas/[assignmentId]">;
@@ -263,7 +264,7 @@ async function Content({ params }: Pick<Props, "params">) {
                     <td className="px-4 py-3">
                       <div className="font-medium">{s.fullName}</div>
                       <div className="font-mono text-xs text-muted-foreground">
-                        {s.registrationCode}
+                        {rollLabel(s.registrationCode)}
                         {s.attemptCount > 1 ? ` · ${s.attemptCount} tentativas` : ""}
                       </div>
                     </td>

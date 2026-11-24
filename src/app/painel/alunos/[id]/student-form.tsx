@@ -11,7 +11,7 @@ export function StudentForm({
   defaults,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
-  defaults: { fullName: string; registrationCode: string };
+  defaults: { fullName: string; registrationCode: string | null };
 }) {
   const [state, formAction] = useActionState(action, initialFormState);
   const values = state.values ?? defaults;
@@ -34,13 +34,12 @@ export function StudentForm({
       />
       <FormField
         name="registrationCode"
-        label="Número na turma"
+        label="Número na turma (opcional)"
         autoComplete="off"
         autoCapitalize="characters"
         spellCheck={false}
-        required
-        hint="É com ela que o aluno se identifica na prova."
-        defaultValue={values.registrationCode}
+        hint="Sem número, o aluno se identifica na prova pelo nome completo."
+        defaultValue={values.registrationCode ?? ""}
         error={state.fieldErrors?.registrationCode}
         className="font-mono uppercase"
       />

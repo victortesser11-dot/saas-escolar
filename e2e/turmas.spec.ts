@@ -125,7 +125,7 @@ test("editar, arquivar, reativar e excluir turma; editar aluno", async ({ page }
   // Editar aluno: número novo é normalizado.
   await page.getByRole("link", { name: "Fábio Reis" }).click();
   await expect(page.getByText("Nº 601")).toBeVisible();
-  await field(page, "Número na turma").fill("601-b");
+  await field(page, "Número na turma (opcional)").fill("601-b");
   await page.getByRole("button", { name: "Salvar alterações" }).click();
   await expect(page.getByText("Dados do aluno atualizados.")).toBeVisible();
   await expect(page.getByText("Nº 601-B")).toBeVisible();

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ConfirmAction } from "@/components/confirm-action";
 import type { ClassRosterStudent } from "@/lib/classes/queries";
+import { rollLabel } from "@/lib/students/roll-order";
 import { removeStudentFromClass } from "../../actions";
 
 /** Lista de chamada: número na turma, nome (com a origem do cadastro) e remoção. */
@@ -41,7 +42,7 @@ export function StudentTable({
           {students.map((student) => (
             <tr key={student.id} className="border-b border-border last:border-b-0 hover:bg-paper">
               <td className="px-3 py-3 font-mono tabular-nums sm:px-4">
-                {student.registrationCode}
+                {rollLabel(student.registrationCode)}
               </td>
               <td className="px-3 py-3 sm:px-4">
                 <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">

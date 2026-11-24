@@ -37,7 +37,7 @@ export async function addStudent(page: Page, fullName: string, code: string) {
     await details.locator("summary").click();
   }
   await field(page, "Nome completo").fill(fullName);
-  await field(page, "Número na turma").fill(code);
+  await field(page, "Número (opcional)").fill(code);
   await page.getByRole("button", { name: "Adicionar", exact: true }).click();
 }
 

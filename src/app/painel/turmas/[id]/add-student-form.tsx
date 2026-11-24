@@ -43,11 +43,10 @@ export function AddStudentForm({
         />
         <FormField
           name="registrationCode"
-          label="Número na turma"
+          label="Número (opcional)"
           autoComplete="off"
           autoCapitalize="characters"
           spellCheck={false}
-          required
           placeholder="Ex.: 12"
           defaultValue={values?.registrationCode}
           error={state.fieldErrors?.registrationCode}

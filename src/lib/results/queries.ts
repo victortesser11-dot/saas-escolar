@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { QuestionType } from "@/lib/questions/types";
 import { isUuid } from "@/lib/uuid";
 import { percentOf, situationOf, type Situation } from "./stats";
+import { compareRoll } from "@/lib/students/roll-order";
 
 /*
  * Consultas de resultados para o professor (sempre sob RLS). Os volumes por turma
@@ -67,7 +68,7 @@ const collator = new Intl.Collator("pt-BR", { sensitivity: "base" });
 export type StudentRow = {
   studentId: string;
   fullName: string;
-  registrationCode: string;
+  registrationCode: string | null;
   situation: Situation;
   attemptId: string | null;
   attemptCount: number;
@@ -448,10 +449,11 @@ export async function getClassGradebook(classId: string, subjectId?: string | nu
   const students = turma.class_students
     .map(({ students: s }) => s)
     .filter((s): s is NonNullable<typeof s> => s !== null)
-    .sort(
-      (a, b) =>
-        collator.compare(a.registration_code, b.registration_code) ||
-        collator.compare(a.full_name, b.full_name),
+    .sort((a, b) =>
+      compareRoll(
+        { code: a.registration_code, name: a.full_name },
+        { code: b.registration_code, name: b.full_name },
+      ),
     )
     .map((s) => ({
       studentId: s.id,

@@ -14,6 +14,7 @@ import { CsvFilePicker, readCsvFile } from "@/components/csv-file-picker";
 import { FormMessage } from "@/components/form/form-message";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { pluralize } from "@/lib/classes/messages";
+import { rollLabel } from "@/lib/students/roll-order";
 import { parseStudentsCsv, type CsvParseResult } from "@/lib/students/csv";
 import type { ImportResult } from "../../../actions";
 
@@ -34,7 +35,7 @@ export function ImportStudents({
   action,
 }: {
   classId: string;
-  action: (rows: { fullName: string; registrationCode: string }[]) => Promise<ImportResult>;
+  action: (rows: { fullName: string; registrationCode: string | null }[]) => Promise<ImportResult>;
 }) {
   const [step, setStep] = useState<Step>({ kind: "pick" });
   const [submitError, setSubmitError] = useState<string>();
@@ -158,7 +159,9 @@ export function ImportStudents({
                       {row.line}
                     </td>
                     <td className="px-4 py-2.5">{row.fullName}</td>
-                    <td className="px-4 py-2.5 font-mono tabular-nums">{row.registrationCode}</td>
+                    <td className="px-4 py-2.5 font-mono tabular-nums">
+                      {rollLabel(row.registrationCode)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -365,14 +365,14 @@ isOneToOne: false
                   ]
                 },"students": {
                   Row: {
-                    "created_at": string,"full_name": string,"id": string,"registration_code": string,"updated_at": string,"workspace_id": string
+                    "created_at": string,"full_name": string,"id": string,"registration_code": string | null,"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"full_name": string,"id"?: string,"registration_code": string,"updated_at"?: string,"workspace_id": string
+                    "created_at"?: string,"full_name": string,"id"?: string,"registration_code"?: string | null,"updated_at"?: string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"full_name"?: string,"id"?: string,"registration_code"?: string,"updated_at"?: string,"workspace_id"?: string
+                    "created_at"?: string,"full_name"?: string,"id"?: string,"registration_code"?: string | null,"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {

@@ -84,7 +84,9 @@ export function parseStudentsCsv(text: string): CsvParseResult {
   let { nameIndex, codeIndex } = findColumns(table[0]);
   let firstDataRow = 1;
 
-  if (nameIndex === -1 || codeIndex === -1) {
+  if (nameIndex !== -1 && codeIndex === -1) {
+    // Só a coluna de nome: os alunos entram sem número.
+  } else if (nameIndex === -1 || codeIndex === -1) {
     const firstRowHasDigits = table[0].some((cell) => /\d/.test(cell));
     if (!firstRowHasDigits) {
       return {
@@ -125,7 +127,7 @@ export function parseStudentsCsv(text: string): CsvParseResult {
     const line = index + firstDataRow + 1;
     const result = studentSchema.safeParse({
       fullName: cells[nameIndex] ?? "",
-      registrationCode: cells[codeIndex] ?? "",
+      registrationCode: codeIndex === -1 ? "" : (cells[codeIndex] ?? ""),
     });
 
     if (!result.success) {
@@ -133,16 +135,17 @@ export function parseStudentsCsv(text: string): CsvParseResult {
       return;
     }
 
-    const duplicateOf = seenCodes.get(rollKey(result.data.registrationCode));
+    const code = result.data.registrationCode;
+    const duplicateOf = code === null ? undefined : seenCodes.get(rollKey(code));
     if (duplicateOf) {
       errors.push({
         line,
-        message: `Número ${result.data.registrationCode} repetido (já aparece na linha ${duplicateOf}).`,
+        message: `Número ${code} repetido (já aparece na linha ${duplicateOf}).`,
       });
       return;
     }
 
-    seenCodes.set(rollKey(result.data.registrationCode), line);
+    if (code !== null) seenCodes.set(rollKey(code), line);
     rows.push({ ...result.data, line });
   });
 

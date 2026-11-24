@@ -33,11 +33,23 @@ describe("parseStudentsCsv", () => {
   it("aponta linhas inválidas e importa as válidas", () => {
     const csv = "Nome;Matrícula\nAna Souza;1\nB;2\nCarla Dias;\nDavi Rocha;4#\n";
     const result = parseStudentsCsv(csv);
-    expect(result.rows.map((r) => r.fullName)).toEqual(["Ana Souza"]);
+    // Número vazio é aceito (o aluno é reconhecido pelo nome completo).
+    expect(result.rows.map((r) => [r.fullName, r.registrationCode])).toEqual([
+      ["Ana Souza", "1"],
+      ["Carla Dias", null],
+    ]);
     expect(result.errors).toEqual([
       { line: 3, message: "Informe o nome completo do aluno." },
-      { line: 4, message: "Informe o número do aluno na turma." },
       { line: 5, message: "Use apenas letras, números e os símbolos . / _ - no número." },
+    ]);
+  });
+
+  it("aceita planilha só com a coluna de nome", () => {
+    const result = parseStudentsCsv("Nome\nAna Souza\nBruno Lima\n");
+    expect(result.fatal).toBeUndefined();
+    expect(result.rows.map((r) => [r.fullName, r.registrationCode])).toEqual([
+      ["Ana Souza", null],
+      ["Bruno Lima", null],
     ]);
   });
 

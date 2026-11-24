@@ -63,7 +63,7 @@ test("aluno fora da lista entra pela prova; turma separa provas e notas por disc
   await late.goto(exam.path);
   await enterExam(late, exam, "Paulo Reis", "6");
   await expect(
-    late.getByText("Esse número não está na lista da turma.", { exact: false }),
+    late.getByText("Você não está na lista desta turma.", { exact: false }),
   ).toBeVisible();
 });
 
@@ -133,4 +133,32 @@ test("professor aplica a prova a partir da página da turma", async ({ page }) =
   await expect(page.getByText("Provas desta turma")).toBeVisible();
   await page.getByRole("link", { name: "Aplicar prova" }).click();
   await expect(page.getByText("Nenhuma prova publicada para aplicar")).toBeVisible();
+});
+
+test("aluno que não sabe o número entra pelo nome completo", async ({ page, browser }) => {
+  const exam = await teacherAppliesExam(page);
+
+  // Lia está na lista (nº 801), mas não lembra o número.
+  const lia = await studentPage(browser);
+  await lia.goto(exam.path);
+  await enterExam(lia, exam, "lia duarte", "");
+  await expect(lia.getByText(/Questão 1 de/)).toBeVisible();
+
+  // Aluno novo: só o primeiro nome não basta; com o sobrenome, entra e é cadastrado.
+  const nina = await studentPage(browser);
+  await nina.goto(exam.path);
+  await enterExam(nina, exam, "Nina", "");
+  await expect(nina.getByText(/escreva seu nome e sobrenome/)).toBeVisible();
+  await enterExam(nina, exam, "Nina Alves", "");
+  await expect(nina.getByText(/Questão 1 de/)).toBeVisible();
+
+  // Na turma: nenhum aluno duplicado; Nina entrou sem número.
+  await page.goto("/painel");
+  await page.getByRole("link", { name: /8º B/ }).click();
+  const rows = page.locator("table tbody tr").filter({ visible: true });
+  await expect(rows).toHaveCount(3);
+  const ninaRow = rows.filter({ hasText: "Nina Alves" });
+  await expect(ninaRow).toContainText("—");
+  await expect(ninaRow).toContainText("entrou pela prova");
+  await expect(rows.filter({ hasText: "Lia Duarte" })).toContainText("801");
 });

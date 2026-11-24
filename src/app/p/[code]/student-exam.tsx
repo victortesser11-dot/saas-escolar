@@ -261,8 +261,16 @@ function EntryScreen({
     const name = String(form.get("name") ?? "").trim();
     const registration = String(form.get("registration") ?? "").trim();
     const accessCode = String(form.get("accessCode") ?? "").trim();
-    if (!name || !registration || (entry.requires_access_code && !accessCode)) {
-      setFieldError("Preencha todos os campos para começar.");
+    if (!name || (entry.requires_access_code && !accessCode)) {
+      setFieldError(
+        entry.requires_access_code
+          ? "Digite seu nome e o código de acesso para começar."
+          : "Digite seu nome para começar.",
+      );
+      return;
+    }
+    if (!registration && name.split(/\s+/).length < 2) {
+      setFieldError("Sem o número, escreva seu nome e sobrenome, como na chamada.");
       return;
     }
     setFieldError(undefined);
@@ -311,10 +319,22 @@ function EntryScreen({
         <FormMessage type="error" message={error ?? fieldError} />
         <div className="grid gap-2">
           <Label htmlFor={`${ids}-name`}>Seu nome</Label>
-          <Input id={`${ids}-name`} name="name" autoComplete="name" className="h-12 text-base" />
+          <Input
+            id={`${ids}-name`}
+            name="name"
+            autoComplete="name"
+            aria-describedby={`${ids}-name-hint`}
+            className="h-12 text-base"
+          />
+          <p id={`${ids}-name-hint`} className="text-xs text-muted-foreground">
+            Nome e sobrenome, como na chamada.
+          </p>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor={`${ids}-registration`}>Seu número na turma</Label>
+          <Label htmlFor={`${ids}-registration`}>
+            Seu número na turma{" "}
+            <span className="font-normal text-muted-foreground">(se souber)</span>
+          </Label>
           <Input
             id={`${ids}-registration`}
             name="registration"
@@ -325,7 +345,7 @@ function EntryScreen({
             className="h-12 font-mono text-base uppercase"
           />
           <p id={`${ids}-registration-hint`} className="text-xs text-muted-foreground">
-            Seu número na chamada (ou a matrícula, se o professor pedir).
+            Número da chamada ou matrícula. Não sabe? Deixe em branco.
           </p>
         </div>
         {entry.requires_access_code ? (

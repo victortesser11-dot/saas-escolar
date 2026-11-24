@@ -2,6 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { compareRoll } from "@/lib/students/roll-order";
 import { isUuid } from "@/lib/uuid";
 
 /*
@@ -21,7 +22,8 @@ export type ClassSummary = {
 export type ClassStudent = {
   id: string;
   fullName: string;
-  registrationCode: string;
+  /** Número na turma; null quando o aluno não informou. */
+  registrationCode: string | null;
 };
 
 export type ClassRosterStudent = ClassStudent & {
@@ -37,9 +39,9 @@ export type ClassDetail = Omit<ClassSummary, "studentCount"> & {
 
 /** Ordem de chamada: pelo número (1, 2, 10…), depois pelo nome. */
 export function byRollNumber(a: ClassStudent, b: ClassStudent) {
-  return (
-    collator.compare(a.registrationCode, b.registrationCode) ||
-    collator.compare(a.fullName, b.fullName)
+  return compareRoll(
+    { code: a.registrationCode, name: a.fullName },
+    { code: b.registrationCode, name: b.fullName },
   );
 }
 

@@ -193,9 +193,9 @@ export async function addStudentToClass(
   if (summary.alreadyInClass > 0) {
     return {
       status: "error",
-      fieldErrors: {
-        registrationCode: `O número ${parsed.data.registrationCode} já está nesta turma.`,
-      },
+      fieldErrors: parsed.data.registrationCode
+        ? { registrationCode: `O número ${parsed.data.registrationCode} já está nesta turma.` }
+        : { fullName: `${parsed.data.fullName} já está nesta turma (sem número).` },
       values,
     };
   }
@@ -225,7 +225,7 @@ export type ImportResult =
 /** Importa as linhas já validadas no navegador. Valida de novo aqui: nunca confiar no cliente. */
 export async function importStudents(
   classId: string,
-  rows: { fullName: string; registrationCode: string }[],
+  rows: { fullName: string; registrationCode: string | null }[],
 ): Promise<ImportResult> {
   if (!isUuid(classId) || !Array.isArray(rows)) {
     return { status: "error", message: GENERIC_SAVE_ERROR };

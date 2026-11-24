@@ -13,6 +13,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { formatPoints } from "@/lib/questions/points";
 import { getClassGradebook } from "@/lib/results/queries";
+import { rollLabel } from "@/lib/students/roll-order";
 import { summarize } from "@/lib/results/stats";
 
 type Props = PageProps<"/painel/notas/[classId]">;
@@ -220,7 +221,7 @@ async function Content({ params, searchParams }: Pick<Props, "params" | "searchP
                       >
                         {r.fullName}
                         <span className="block font-mono text-xs font-normal text-muted-foreground">
-                          {r.registrationCode}
+                          {rollLabel(r.registrationCode)}
                         </span>
                       </th>
                       {r.cells.map((cell, i) => (
