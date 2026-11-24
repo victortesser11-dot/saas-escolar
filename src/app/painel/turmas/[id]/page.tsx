@@ -1,4 +1,4 @@
-import { Pencil, Upload, UserPlus, X } from "lucide-react";
+import { Pencil, Send, Upload, UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
@@ -59,13 +59,19 @@ async function ClassContent({ params }: Pick<PageProps<"/painel/turmas/[id]">, "
         title={turma.name}
         actions={
           archived ? null : (
-            <Link
-              href={`/painel/turmas/${turma.id}/editar`}
-              className={buttonVariants({ variant: "ghost" })}
-            >
-              <Pencil aria-hidden />
-              Editar turma
-            </Link>
+            <>
+              <Link href={`/painel/turmas/${turma.id}/aplicar`} className={buttonVariants()}>
+                <Send aria-hidden />
+                Aplicar prova
+              </Link>
+              <Link
+                href={`/painel/turmas/${turma.id}/editar`}
+                className={buttonVariants({ variant: "ghost" })}
+              >
+                <Pencil aria-hidden />
+                Editar turma
+              </Link>
+            </>
           )
         }
       />

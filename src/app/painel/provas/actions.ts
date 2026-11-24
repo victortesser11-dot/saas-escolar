@@ -317,20 +317,28 @@ export async function unpublishExam(examId: string): Promise<void> {
 // Aplicação em turmas
 // ---------------------------------------------------------------------------
 
-export type AssignmentInput = {
-  classId: string;
+/** O que o formulário de aplicação envia: a turma OU a prova escolhida, conforme a tela. */
+export type ApplyInput = {
+  targetId: string;
   opensAt: string;
   closesAt: string;
   requireAccessCode: boolean;
 };
 
-export async function createAssignment(
+type ApplyResult = { status: "error"; message?: string; errors: Record<string, string> };
+
+/** Núcleo comum: aplica a prova na turma e leva à prova, onde ficam o link e o código. */
+async function applyExamToClass(
   examId: string,
-  input: AssignmentInput,
-): Promise<{ status: "error"; message?: string; errors: Record<string, string> }> {
-  const parsed = assignmentSchema.safeParse(input);
+  classId: string,
+  input: ApplyInput,
+  duplicateMessage: string,
+): Promise<ApplyResult> {
+  const parsed = assignmentSchema.safeParse({ ...input, classId });
   if (!parsed.success) return { status: "error", errors: toQuestionErrors(parsed.error) };
-  if (!isUuid(examId)) return { status: "error", message: GENERIC_SAVE_ERROR, errors: {} };
+  if (!isUuid(examId)) {
+    return { status: "error", errors: { targetId: "Escolha a prova." } };
+  }
 
   const user = await getCurrentUser();
   const supabase = await createClient();
@@ -344,17 +352,36 @@ export async function createAssignment(
   });
 
   if (error?.code === "23505") {
-    return {
-      status: "error",
-      errors: {
-        classId: "Esta prova já foi aplicada nesta turma. Ajuste o período dela na prova.",
-      },
-    };
+    return { status: "error", errors: { targetId: duplicateMessage } };
   }
   if (error) return { status: "error", message: dbMessage(error), errors: {} };
 
   revalidatePath(examPath(examId));
+  revalidatePath(`/painel/turmas/${parsed.data.classId}`);
   redirect(`${examPath(examId)}?aplicada=1`);
+}
+
+/** A partir da prova: o professor escolhe a turma. */
+export async function createAssignment(examId: string, input: ApplyInput): Promise<ApplyResult> {
+  return applyExamToClass(
+    examId,
+    input.targetId,
+    input,
+    "Esta prova já foi aplicada nesta turma. Ajuste o período dela na prova.",
+  );
+}
+
+/** A partir da turma: o professor escolhe a prova. */
+export async function createAssignmentForClass(
+  classId: string,
+  input: ApplyInput,
+): Promise<ApplyResult> {
+  return applyExamToClass(
+    input.targetId,
+    classId,
+    input,
+    "Esta prova já foi aplicada nesta turma. Veja o link dela na página da prova.",
+  );
 }
 
 export async function closeAssignmentNow(assignmentId: string): Promise<void> {

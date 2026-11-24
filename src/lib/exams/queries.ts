@@ -188,3 +188,47 @@ export async function countPublishedExamsUsingQuestion(questionId: string): Prom
     .eq("exams.status", "published");
   return count ?? 0;
 }
+
+export type ApplicableExam = {
+  id: string;
+  title: string;
+  subjectName: string | null;
+  timeLimitMinutes: number | null;
+  questionCount: number;
+};
+
+/**
+ * Provas publicadas que ainda não foram aplicadas na turma (para aplicar a partir dela).
+ * As da mesma disciplina da turma vêm primeiro.
+ */
+export async function listApplicableExams(
+  classId: string,
+  classSubjectIds: string[],
+): Promise<ApplicableExam[]> {
+  if (!isUuid(classId)) return [];
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("exams")
+    .select(
+      "id, title, subject_id, time_limit_minutes, updated_at, subjects(name), exam_questions(count), exam_assignments(class_id)",
+    )
+    .eq("workspace_id", user.workspace.id)
+    .eq("status", "published")
+    .order("updated_at", { ascending: false });
+  if (error) throw new Error(`Falha ao listar provas: ${error.message}`);
+
+  const inClass = new Set(classSubjectIds);
+  return data
+    .filter((e) => !e.exam_assignments.some((a) => a.class_id === classId))
+    .sort(
+      (a, b) => Number(inClass.has(b.subject_id ?? "")) - Number(inClass.has(a.subject_id ?? "")),
+    )
+    .map((e) => ({
+      id: e.id,
+      title: e.title,
+      subjectName: e.subjects?.name ?? null,
+      timeLimitMinutes: e.time_limit_minutes,
+      questionCount: e.exam_questions[0]?.count ?? 0,
+    }));
+}

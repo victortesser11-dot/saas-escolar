@@ -38,7 +38,7 @@ async function Content({ params }: Pick<Props, "params">) {
       {classes.length === 0 ? (
         <EmptyState
           title="Você ainda não tem turmas"
-          description="Crie a turma e cadastre os alunos: só alunos da lista conseguem entrar na prova."
+          description="Crie a turma. Os alunos entram com nome e número e já ficam cadastrados nela."
         >
           <Link href="/painel/turmas/nova" className={buttonVariants()}>
             Criar turma
@@ -58,9 +58,10 @@ async function Content({ params }: Pick<Props, "params">) {
         </EmptyState>
       ) : (
         <AssignmentForm
-          examId={exam.id}
+          choose="class"
           action={createAssignment.bind(null, exam.id)}
-          classes={available.map((c) => ({
+          cancelHref={`/painel/provas/${exam.id}`}
+          options={available.map((c) => ({
             id: c.id,
             label: `${c.name}${c.schoolYear ? ` (${c.schoolYear})` : ""} — ${c.studentCount} ${c.studentCount === 1 ? "aluno" : "alunos"}`,
             empty: c.studentCount === 0,

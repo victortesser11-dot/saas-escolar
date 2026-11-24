@@ -100,3 +100,37 @@ test("aplicação de teste sem alunos pode ser removida e refeita na mesma turma
   await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
   await expect(page.getByText(/Prova aplicada/)).toBeVisible();
 });
+
+test("professor aplica a prova a partir da página da turma", async ({ page }) => {
+  // Prova publicada e aplicada pelo caminho da prova; a aplicação é removida para refazer pela turma.
+  await teacherAppliesExam(page, { withStudents: false, subject: "Matemática" });
+  const card = page.locator("li").filter({ hasText: "Código de acesso" }).filter({ visible: true });
+  await card.getByRole("button", { name: "Remover aplicação" }).click();
+  await card.getByRole("button", { name: "Remover desta turma" }).click();
+  await expect(card).toHaveCount(0);
+
+  await page.goto("/painel");
+  await page.getByRole("link", { name: /8º B/ }).click();
+  await page.getByRole("link", { name: "Aplicar prova" }).click();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Aplicar prova nesta turma" }),
+  ).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  await page
+    .getByRole("combobox", { name: "Prova", exact: true })
+    .selectOption({ label: "Mini prova — Matemática — 2 questões" });
+  await expect(page.getByText(/tudo bem: cada aluno entra com nome e número/)).toBeVisible();
+  await page.getByRole("checkbox", { name: /Exigir código de acesso/ }).check();
+  await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
+
+  // Vai para a prova, onde ficam o link e o código da turma.
+  await expect(page.getByText(/Prova aplicada/)).toBeVisible();
+  await expect(card).toContainText("8º B");
+
+  // Na turma, a prova aparece e não é mais oferecida para aplicar de novo.
+  await page.goto("/painel");
+  await page.getByRole("link", { name: /8º B/ }).click();
+  await expect(page.getByText("Provas desta turma")).toBeVisible();
+  await page.getByRole("link", { name: "Aplicar prova" }).click();
+  await expect(page.getByText("Nenhuma prova publicada para aplicar")).toBeVisible();
+});
