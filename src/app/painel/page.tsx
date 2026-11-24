@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { FilterableList } from "@/components/filterable-list";
 import { PageHeader } from "@/components/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -67,13 +68,16 @@ async function ClassList() {
           </Link>
         </EmptyState>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {classes.map((item) => (
-            <li key={item.id}>
-              <ClassCard item={item} />
-            </li>
-          ))}
-        </ul>
+        <FilterableList
+          searchLabel="Buscar turma pelo nome"
+          emptyLabel="Nenhuma turma encontrada com esse nome."
+          className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          items={classes.map((item) => ({
+            id: item.id,
+            text: item.name,
+            node: <ClassCard item={item} />,
+          }))}
+        />
       )}
       {archivedCount > 0 ? (
         <Link

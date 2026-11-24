@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { FilterableList } from "@/components/filterable-list";
 import { PageHeader } from "@/components/page-header";
 import { StatusChip } from "@/components/status-chip";
 import { buttonVariants } from "@/components/ui/button";
@@ -49,9 +50,16 @@ async function ExamList() {
   }
 
   return (
-    <ul className="grid gap-3 sm:grid-cols-2">
-      {exams.map((exam) => (
-        <li key={exam.id}>
+    <FilterableList
+      searchLabel="Buscar prova pelo nome"
+      groupLabel="Disciplina"
+      emptyLabel="Nenhuma prova encontrada com esse filtro."
+      className="grid gap-3 sm:grid-cols-2"
+      items={exams.map((exam) => ({
+        id: exam.id,
+        text: exam.title,
+        group: exam.subjectName,
+        node: (
           <Link
             href={`/painel/provas/${exam.id}`}
             className="group grid h-full gap-4 rounded-md border-[1.5px] border-border bg-card p-4 transition-[border-color,box-shadow] outline-none hover:border-foreground hover:shadow-[3px_3px_0_var(--mark)] focus-visible:border-foreground focus-visible:ring-4 focus-visible:ring-ring"
@@ -80,8 +88,8 @@ async function ExamList() {
               </span>
             </div>
           </Link>
-        </li>
-      ))}
-    </ul>
+        ),
+      }))}
+    />
   );
 }
