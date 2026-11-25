@@ -30,6 +30,9 @@ export type ExamEntry =
       title: string;
       instructions: string | null;
       class_name: string;
+      subject_name?: string | null;
+      period?: string | null;
+      teacher_name?: string | null;
       state: "scheduled" | "open" | "closed";
       opens_at: string;
       closes_at: string;

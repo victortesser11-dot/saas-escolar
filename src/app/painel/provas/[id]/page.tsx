@@ -14,6 +14,7 @@ import { getExamDetail, type ExamDetail } from "@/lib/exams/queries";
 import { ASSIGNMENT_STATUS_LABEL, assignmentStatus, summarizeExam } from "@/lib/exams/rules";
 import { formatPoints } from "@/lib/questions/points";
 import { closeAssignmentNow, deleteAssignment, deleteExam, unpublishExam } from "../actions";
+import { AssignmentLinks } from "./assignment-links";
 import { ExamQuestionRow } from "./exam-question-row";
 import { RulesForm } from "./rules-form";
 
@@ -42,7 +43,7 @@ async function ExamContent({ params, searchParams }: Props) {
       <title>{`${exam.title} · Avaliações Escolares`}</title>
       <PageHeader
         back={{ href: "/painel/provas", label: "Provas" }}
-        eyebrow={[exam.subject?.name, published ? "Prova publicada" : "Rascunho"]
+        eyebrow={[exam.subject?.name, exam.period, published ? "Prova publicada" : "Rascunho"]
           .filter(Boolean)
           .join(" · ")}
         title={exam.title}
@@ -78,7 +79,11 @@ async function ExamContent({ params, searchParams }: Props) {
       {query.aplicada ? (
         <FormMessage
           type="success"
-          message="Prova aplicada. Copie o link da turma e envie aos alunos (ou mostre no quadro)."
+          message={
+            Number(query.aplicada) > 1
+              ? `Prova aplicada em ${Number(query.aplicada)} turmas. Cada turma tem o próprio link e código: copie abaixo e envie a cada uma.`
+              : "Prova aplicada. Copie o link da turma e envie aos alunos (ou mostre no quadro)."
+          }
         />
       ) : null}
       {query.erro === "despublicar" ? (
@@ -281,74 +286,89 @@ function AssignmentsSection({ exam, now }: { exam: ExamDetail; now: Date }) {
           </Link>
         </EmptyState>
       ) : (
-        <ul className="grid gap-3">
-          {exam.assignments.map((assignment) => {
-            const status = assignmentStatus(assignment, now);
-            const path = `/p/${assignment.publicCode}`;
-            return (
-              <li
-                key={assignment.id}
-                className="grid gap-4 rounded-md border-[1.5px] border-border bg-card p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Link
-                    href={`/painel/turmas/${assignment.classId}`}
-                    className="font-semibold underline decoration-transparent decoration-[3px] underline-offset-4 hover:decoration-mark"
-                  >
-                    {assignment.className}
-                  </Link>
-                  <StatusChip tone={status}>{ASSIGNMENT_STATUS_LABEL[status]}</StatusChip>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
-                  <div className="grid gap-1 text-sm">
-                    <p>
-                      <span className="text-muted-foreground">Abre </span>
-                      <LocalDateTime iso={assignment.opensAt} />
-                      <span className="text-muted-foreground"> · fecha </span>
-                      <LocalDateTime iso={assignment.closedAt ?? assignment.closesAt} />
-                    </p>
-                    <p className="font-mono text-sm break-all">{path}</p>
+        <>
+          {exam.assignments.filter((a) => assignmentStatus(a, now) !== "closed").length > 1 ? (
+            <AssignmentLinks
+              examTitle={exam.title}
+              rows={exam.assignments
+                .filter((a) => assignmentStatus(a, now) !== "closed")
+                .map((a) => ({
+                  id: a.id,
+                  className: a.className,
+                  path: `/p/${a.publicCode}`,
+                  accessCode: a.accessCode,
+                }))}
+            />
+          ) : null}
+          <ul className="grid gap-3">
+            {exam.assignments.map((assignment) => {
+              const status = assignmentStatus(assignment, now);
+              const path = `/p/${assignment.publicCode}`;
+              return (
+                <li
+                  key={assignment.id}
+                  className="grid gap-4 rounded-md border-[1.5px] border-border bg-card p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <Link
+                      href={`/painel/turmas/${assignment.classId}`}
+                      className="font-semibold underline decoration-transparent decoration-[3px] underline-offset-4 hover:decoration-mark"
+                    >
+                      {assignment.className}
+                    </Link>
+                    <StatusChip tone={status}>{ASSIGNMENT_STATUS_LABEL[status]}</StatusChip>
                   </div>
-                  {assignment.accessCode ? (
-                    <div className="grid justify-items-start gap-0.5 sm:justify-items-end">
-                      <span className="label-mono text-muted-foreground">Código de acesso</span>
-                      <span className="font-mono text-2xl font-medium tracking-[0.2em]">
-                        {assignment.accessCode}
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
 
-                <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-border pt-3">
-                  <Link
-                    href={`/painel/provas/${exam.id}/turmas/${assignment.id}`}
-                    className={buttonVariants({ size: "sm" })}
-                  >
-                    Acompanhar e notas
-                  </Link>
-                  {status !== "closed" ? <CopyButton path={path} /> : null}
-                  {status === "open" ? (
-                    <ConfirmAction
-                      action={closeAssignmentNow.bind(null, assignment.id)}
-                      label="Encerrar agora"
-                      confirmLabel="Encerrar a prova nesta turma"
-                      variant="ghost"
-                    />
-                  ) : null}
-                  {assignment.attemptCount === 0 ? (
-                    <ConfirmAction
-                      action={deleteAssignment.bind(null, assignment.id)}
-                      label="Remover aplicação"
-                      confirmLabel="Remover desta turma"
-                      variant="ghost"
-                    />
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                  <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <div className="grid gap-1 text-sm">
+                      <p>
+                        <span className="text-muted-foreground">Abre </span>
+                        <LocalDateTime iso={assignment.opensAt} />
+                        <span className="text-muted-foreground"> · fecha </span>
+                        <LocalDateTime iso={assignment.closedAt ?? assignment.closesAt} />
+                      </p>
+                      <p className="font-mono text-sm break-all">{path}</p>
+                    </div>
+                    {assignment.accessCode ? (
+                      <div className="grid justify-items-start gap-0.5 sm:justify-items-end">
+                        <span className="label-mono text-muted-foreground">Código de acesso</span>
+                        <span className="font-mono text-2xl font-medium tracking-[0.2em]">
+                          {assignment.accessCode}
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 border-t border-dashed border-border pt-3">
+                    <Link
+                      href={`/painel/provas/${exam.id}/turmas/${assignment.id}`}
+                      className={buttonVariants({ size: "sm" })}
+                    >
+                      Acompanhar e notas
+                    </Link>
+                    {status !== "closed" ? <CopyButton path={path} /> : null}
+                    {status === "open" ? (
+                      <ConfirmAction
+                        action={closeAssignmentNow.bind(null, assignment.id)}
+                        label="Encerrar agora"
+                        confirmLabel="Encerrar a prova nesta turma"
+                        variant="ghost"
+                      />
+                    ) : null}
+                    {assignment.attemptCount === 0 ? (
+                      <ConfirmAction
+                        action={deleteAssignment.bind(null, assignment.id)}
+                        label="Remover aplicação"
+                        confirmLabel="Remover desta turma"
+                        variant="ghost"
+                      />
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </section>
   );

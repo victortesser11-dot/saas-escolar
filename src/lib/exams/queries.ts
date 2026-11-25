@@ -69,6 +69,7 @@ export type ExamDetail = {
   id: string;
   title: string;
   subject: { id: string; name: string } | null;
+  period: string | null;
   description: string | null;
   instructions: string | null;
   status: ExamRow["status"];
@@ -92,7 +93,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
   const { data, error } = await supabase
     .from("exams")
     .select(
-      `id, title, subjects(id, name), description, instructions, status, questions_per_attempt, shuffle_questions,
+      `id, title, subjects(id, name), period, description, instructions, status, questions_per_attempt, shuffle_questions,
        shuffle_options, time_limit_minutes, result_visibility, published_at,
        exam_questions(id, question_id, points, position, content,
          questions(type, stem, question_options(count))),
@@ -140,6 +141,7 @@ export async function getExamDetail(examId: string): Promise<ExamDetail> {
     id: data.id,
     title: data.title,
     subject: data.subjects ?? null,
+    period: data.period,
     description: data.description,
     instructions: data.instructions,
     status: data.status,

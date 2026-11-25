@@ -95,7 +95,7 @@ test("aplicação de teste sem alunos pode ser removida e refeita na mesma turma
 
   // A turma volta para a lista; o aviso explica o cadastro pela prova.
   await page.getByRole("link", { name: "Aplicar em turma" }).first().click();
-  await page.getByRole("combobox", { name: "Turma", exact: true }).selectOption({ index: 1 });
+  await page.getByRole("checkbox", { name: /8º B/ }).check();
   await expect(page.getByText(/tudo bem: cada aluno entra com nome e número/)).toBeVisible();
   await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
   await expect(page.getByText(/Prova aplicada/)).toBeVisible();

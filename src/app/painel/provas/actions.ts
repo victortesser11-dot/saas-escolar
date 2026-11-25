@@ -62,6 +62,7 @@ export async function createExam(_prev: FormState, formData: FormData): Promise<
   const values = {
     title: text(formData, "title"),
     subject: text(formData, "subject"),
+    period: text(formData, "period"),
     description: text(formData, "description"),
     instructions: text(formData, "instructions"),
   };
@@ -97,6 +98,7 @@ export async function updateExamInfo(
   const values = {
     title: text(formData, "title"),
     subject: text(formData, "subject"),
+    period: text(formData, "period"),
     description: text(formData, "description"),
     instructions: text(formData, "instructions"),
   };
@@ -317,9 +319,9 @@ export async function unpublishExam(examId: string): Promise<void> {
 // Aplicação em turmas
 // ---------------------------------------------------------------------------
 
-/** O que o formulário de aplicação envia: a turma OU a prova escolhida, conforme a tela. */
+/** O que o formulário de aplicação envia: as turmas (a partir da prova) OU a prova (a partir da turma). */
 export type ApplyInput = {
-  targetId: string;
+  targetIds: string[];
   opensAt: string;
   closesAt: string;
   requireAccessCode: boolean;
@@ -327,47 +329,57 @@ export type ApplyInput = {
 
 type ApplyResult = { status: "error"; message?: string; errors: Record<string, string> };
 
-/** Núcleo comum: aplica a prova na turma e leva à prova, onde ficam o link e o código. */
-async function applyExamToClass(
+/**
+ * Núcleo comum: aplica uma prova em uma ou mais turmas, numa única gravação (ou todas,
+ * ou nenhuma). Cada turma recebe o próprio link e o próprio código de acesso.
+ * Leva à prova, onde ficam os links e códigos.
+ */
+async function applyExamToClasses(
   examId: string,
-  classId: string,
+  classIds: string[],
   input: ApplyInput,
   duplicateMessage: string,
 ): Promise<ApplyResult> {
-  const parsed = assignmentSchema.safeParse({ ...input, classId });
-  if (!parsed.success) return { status: "error", errors: toQuestionErrors(parsed.error) };
-  if (!isUuid(examId)) {
-    return { status: "error", errors: { targetId: "Escolha a prova." } };
+  const unique = [...new Set(classIds)];
+  if (unique.length === 0)
+    return { status: "error", errors: { targetIds: "Marque ao menos uma turma." } };
+  if (unique.length > 50)
+    return { status: "error", errors: { targetIds: "Marque no máximo 50 turmas por vez." } };
+  for (const classId of unique) {
+    const parsed = assignmentSchema.safeParse({ ...input, classId });
+    if (!parsed.success) return { status: "error", errors: toQuestionErrors(parsed.error) };
   }
+  if (!isUuid(examId)) return { status: "error", errors: { targetIds: "Escolha a prova." } };
+  const times = assignmentSchema.parse({ ...input, classId: unique[0] });
 
   const user = await getCurrentUser();
   const supabase = await createClient();
-  const { error } = await supabase.from("exam_assignments").insert({
-    workspace_id: user.workspace.id,
-    exam_id: examId,
-    class_id: parsed.data.classId,
-    opens_at: parsed.data.opensAt,
-    closes_at: parsed.data.closesAt,
-    access_code: parsed.data.requireAccessCode ? generateAccessCode() : null,
-  });
+  const { error } = await supabase.from("exam_assignments").insert(
+    unique.map((classId) => ({
+      workspace_id: user.workspace.id,
+      exam_id: examId,
+      class_id: classId,
+      opens_at: times.opensAt,
+      closes_at: times.closesAt,
+      access_code: times.requireAccessCode ? generateAccessCode() : null,
+    })),
+  );
 
-  if (error?.code === "23505") {
-    return { status: "error", errors: { targetId: duplicateMessage } };
-  }
+  if (error?.code === "23505") return { status: "error", errors: { targetIds: duplicateMessage } };
   if (error) return { status: "error", message: dbMessage(error), errors: {} };
 
   revalidatePath(examPath(examId));
-  revalidatePath(`/painel/turmas/${parsed.data.classId}`);
-  redirect(`${examPath(examId)}?aplicada=1`);
+  for (const classId of unique) revalidatePath(`/painel/turmas/${classId}`);
+  redirect(`${examPath(examId)}?aplicada=${unique.length}`);
 }
 
-/** A partir da prova: o professor escolhe a turma. */
+/** A partir da prova: o professor marca uma ou mais turmas. */
 export async function createAssignment(examId: string, input: ApplyInput): Promise<ApplyResult> {
-  return applyExamToClass(
+  return applyExamToClasses(
     examId,
-    input.targetId,
+    Array.isArray(input.targetIds) ? input.targetIds : [],
     input,
-    "Esta prova já foi aplicada nesta turma. Ajuste o período dela na prova.",
+    "A prova já foi aplicada em uma das turmas marcadas. Atualize a página e confira a lista.",
   );
 }
 
@@ -376,9 +388,9 @@ export async function createAssignmentForClass(
   classId: string,
   input: ApplyInput,
 ): Promise<ApplyResult> {
-  return applyExamToClass(
-    input.targetId,
-    classId,
+  return applyExamToClasses(
+    input.targetIds?.[0] ?? "",
+    [classId],
     input,
     "Esta prova já foi aplicada nesta turma. Veja o link dela na página da prova.",
   );

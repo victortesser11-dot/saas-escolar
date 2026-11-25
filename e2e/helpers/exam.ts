@@ -78,7 +78,7 @@ export async function teacherAppliesExam(
   await page.getByRole("link", { name: "Revisar e publicar" }).click();
   await page.getByRole("button", { name: "Publicar prova" }).click();
   await page.getByRole("link", { name: "Aplicar em turma" }).first().click();
-  await page.getByRole("combobox", { name: "Turma", exact: true }).selectOption({ index: 1 });
+  await page.getByRole("checkbox", { name: /8º B/ }).check();
   await page.getByRole("checkbox", { name: /Exigir código de acesso/ }).check();
   await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
   await expect(page.getByText(/Prova aplicada/)).toBeVisible();

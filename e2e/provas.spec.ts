@@ -110,9 +110,7 @@ test("monta, publica e aplica uma prova em uma turma", async ({ page }) => {
 
   // Aplicar na turma com código de acesso.
   await page.getByRole("link", { name: "Aplicar em turma" }).first().click();
-  await page
-    .getByRole("combobox", { name: "Turma", exact: true })
-    .selectOption({ label: "7º A — 2 alunos" });
+  await page.getByRole("checkbox", { name: "7º A — 2 alunos" }).check();
   await page.getByRole("checkbox", { name: /Exigir código de acesso/ }).check();
   await page.getByRole("button", { name: "Aplicar e gerar link" }).click();
   await expect(page.getByText(/Prova aplicada\. Copie o link/)).toBeVisible();

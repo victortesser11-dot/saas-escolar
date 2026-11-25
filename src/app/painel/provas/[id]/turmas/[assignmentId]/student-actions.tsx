@@ -4,7 +4,8 @@ import { LoaderCircle } from "lucide-react";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { finalizeAttemptByTeacher, grantRelease } from "../../../../resultados/actions";
+import { grantRelease } from "../../../../resultados/actions";
+import { ValidateAttempt } from "./validate-attempt";
 
 /** Ações do professor sobre um aluno: liberar retomada/nova tentativa ou encerrar. */
 export function StudentActions({
@@ -22,26 +23,31 @@ export function StudentActions({
   pendingRelease: "resume" | "new_attempt" | null;
   closed: boolean;
 }) {
-  const [mode, setMode] = useState<"idle" | "resume" | "new" | "finalize">("idle");
+  const [mode, setMode] = useState<"idle" | "resume" | "new">("idle");
   const [minutes, setMinutes] = useState("10");
   const [message, setMessage] = useState<string>();
   const [pending, startTransition] = useTransition();
 
+  const canFinalize =
+    attemptId !== null && (situation === "interrupted" || situation === "in_progress");
+
   if (pendingRelease) {
     return (
-      <span className="text-xs text-muted-foreground">
-        {pendingRelease === "resume" ? "Retomada liberada" : "Nova tentativa liberada"}: o aluno já
-        pode entrar.
-      </span>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <span className="text-xs text-muted-foreground">
+          {pendingRelease === "resume" ? "Retomada liberada" : "Nova tentativa liberada"}: o aluno
+          já pode entrar.
+        </span>
+        {canFinalize ? (
+          <ValidateAttempt attemptId={attemptId!} interrupted={situation === "interrupted"} />
+        ) : null}
+      </div>
     );
   }
 
   const canResume = situation === "interrupted" && !closed;
   const canNew =
     !closed && ["interrupted", "pending_review", "graded", "expired"].includes(situation);
-  const canFinalize =
-    attemptId !== null && (situation === "interrupted" || situation === "in_progress");
-
   if (!canResume && !canNew && !canFinalize) return null;
 
   function run(action: () => Promise<{ ok: boolean; message?: string } | void>) {
@@ -84,29 +90,21 @@ export function StudentActions({
     );
   }
 
-  if (mode === "new" || mode === "finalize") {
+  if (mode === "new") {
     return (
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm">
-          {mode === "new"
-            ? "O aluno fará outra prova sorteada; a anterior fica no histórico."
-            : "Encerrar e corrigir com as respostas já salvas?"}
+          O aluno fará outra prova sorteada; a anterior fica no histórico.
         </span>
         <Button
           type="button"
           size="sm"
           disabled={pending}
           autoFocus
-          onClick={() =>
-            run(() =>
-              mode === "new"
-                ? grantRelease(assignmentId, studentId, "new_attempt", 0)
-                : finalizeAttemptByTeacher(attemptId!),
-            )
-          }
+          onClick={() => run(() => grantRelease(assignmentId, studentId, "new_attempt", 0))}
         >
           {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
-          {mode === "new" ? "Liberar nova tentativa" : "Encerrar"}
+          Liberar nova tentativa
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={() => setMode("idle")}>
           Cancelar
@@ -129,9 +127,7 @@ export function StudentActions({
         </Button>
       ) : null}
       {canFinalize ? (
-        <Button type="button" size="sm" variant="ghost" onClick={() => setMode("finalize")}>
-          Encerrar
-        </Button>
+        <ValidateAttempt attemptId={attemptId!} interrupted={situation === "interrupted"} />
       ) : null}
     </div>
   );

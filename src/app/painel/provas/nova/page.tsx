@@ -27,7 +27,7 @@ async function NewExamForm() {
   return (
     <ExamInfoForm
       action={createExam}
-      defaults={{ title: "", subject: "", description: "", instructions: "" }}
+      defaults={{ title: "", subject: "", period: "", description: "", instructions: "" }}
       submitLabel="Criar e adicionar questões"
       subjects={subjects.map((s) => s.name)}
     />

@@ -186,6 +186,30 @@ export function StudentExam({ code, entry }: { code: string; entry: ExamEntry })
   }
 }
 
+/** Identificação da prova: disciplina, período, turma e professor(a), quando cadastrados. */
+function ExamIdentity({ entry }: { entry: OpenEntry }) {
+  const rows = [
+    ["Disciplina", entry.subject_name],
+    ["Período", entry.period],
+    ["Turma", entry.class_name],
+    ["Professor(a)", entry.teacher_name],
+  ].filter((row): row is [string, string] => Boolean(row[1]));
+  if (rows.length === 0) return null;
+  return (
+    <dl
+      aria-label="Identificação da prova"
+      className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 rounded-md border-[1.5px] border-foreground bg-card px-4 py-3 text-sm"
+    >
+      {rows.map(([label, value]) => (
+        <div key={label} className="contents">
+          <dt className="label-mono pt-0.5 text-muted-foreground">{label}</dt>
+          <dd className="font-medium break-words">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 function Shell({ entry, children }: { entry?: OpenEntry; children: ReactNode }) {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-5 pb-10">
@@ -288,6 +312,7 @@ function EntryScreen({
         <h1 className="text-3xl leading-tight font-bold tracking-tight">
           <span className="hl">{entry.title}</span>
         </h1>
+        <ExamIdentity entry={entry} />
         <ul className="flex flex-wrap gap-2 font-mono text-xs">
           <li className="rounded-sm border-[1.5px] border-border bg-card px-2 py-1">
             {pluralize(entry.question_count, "questão", "questões")}

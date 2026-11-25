@@ -80,7 +80,12 @@ function AssignmentFormBody({
   fixedClass,
 }: Props) {
   const ids = useId();
+  // Prova → várias turmas (caixas de marcar); turma → uma prova (lista).
+  const multi = choose === "class";
   const [targetId, setTargetId] = useState(options.length === 1 ? options[0].id : "");
+  const [checked, setChecked] = useState<Set<string>>(
+    () => new Set(options.length === 1 ? [options[0].id] : []),
+  );
   const [opensAt, setOpensAt] = useState(() => {
     const now = new Date();
     now.setSeconds(0, 0);
@@ -95,11 +100,17 @@ function AssignmentFormBody({
   const [formError, setFormError] = useState<string>();
   const [pending, startTransition] = useTransition();
 
-  // Aviso de turma sem alunos: a turma escolhida, ou a turma fixa.
-  const classInfo =
-    choose === "class"
-      ? selected && { id: selected.id, empty: !!selected.empty, selfEnroll: !!selected.selfEnroll }
-      : fixedClass;
+  // Avisos de turma sem alunos: as turmas marcadas, ou a turma fixa.
+  const chosenClasses: FixedClass[] = multi
+    ? options
+        .filter((o) => checked.has(o.id))
+        .map((o) => ({ id: o.id, empty: !!o.empty, selfEnroll: !!o.selfEnroll }))
+    : fixedClass
+      ? [fixedClass]
+      : [];
+  const emptyOpen = chosenClasses.filter((c) => c.empty && c.selfEnroll);
+  const emptyClosed = chosenClasses.filter((c) => c.empty && !c.selfEnroll);
+  const count = multi ? checked.size : targetId ? 1 : 0;
 
   function pick(id: string) {
     setTargetId(id);
@@ -107,6 +118,15 @@ function AssignmentFormBody({
     if (choose === "exam" && !closesTouched) {
       setClosesAt(defaultClosesAt(options.find((o) => o.id === id)?.timeLimitMinutes));
     }
+  }
+
+  function toggle(id: string, on: boolean) {
+    setChecked((current) => {
+      const next = new Set(current);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
   }
 
   function submit() {
@@ -117,9 +137,13 @@ function AssignmentFormBody({
       setErrors({ closesAt: "Informe a data e a hora de abertura e de fechamento." });
       return;
     }
+    // Mantém a ordem da lista na tela.
+    const targetIds = multi
+      ? options.filter((o) => checked.has(o.id)).map((o) => o.id)
+      : [targetId];
     startTransition(async () => {
       const result = await action({
-        targetId,
+        targetIds,
         opensAt: opens.toISOString(),
         closesAt: closes.toISOString(),
         requireAccessCode,
@@ -129,8 +153,7 @@ function AssignmentFormBody({
     });
   }
 
-  const label = choose === "class" ? "Turma" : "Prova";
-  const targetError = errors.targetId ?? errors.classId;
+  const targetError = errors.targetIds ?? errors.targetId ?? errors.classId;
 
   return (
     <form
@@ -141,40 +164,93 @@ function AssignmentFormBody({
         submit();
       }}
     >
-      <div className="grid gap-2">
-        <Label htmlFor={`${ids}-target`}>{label}</Label>
-        <select
-          id={`${ids}-target`}
-          value={targetId}
-          onChange={(e) => pick(e.target.value)}
-          aria-invalid={targetError ? true : undefined}
-          className="h-10 rounded-md border-[1.5px] border-input bg-card px-3 text-sm outline-none focus-visible:ring-4 focus-visible:ring-ring aria-invalid:border-destructive"
-        >
-          <option value="">{choose === "class" ? "Escolha a turma" : "Escolha a prova"}</option>
-          {options.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        {targetError ? <p className="text-xs text-destructive">{targetError}</p> : null}
-        {classInfo?.empty && classInfo.selfEnroll ? (
+      {multi ? (
+        <fieldset className="grid gap-2">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <legend className="text-sm font-medium">Turmas</legend>
+            {options.length > 1 ? (
+              <button
+                type="button"
+                onClick={() =>
+                  setChecked(
+                    checked.size === options.length ? new Set() : new Set(options.map((o) => o.id)),
+                  )
+                }
+                className="text-sm underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-4 focus-visible:ring-ring"
+              >
+                {checked.size === options.length ? "Desmarcar todas" : "Selecionar todas"}
+              </button>
+            ) : null}
+          </div>
+          <ul
+            className={
+              targetError
+                ? "grid gap-1.5 rounded-md border-[1.5px] border-destructive bg-card p-2 sm:grid-cols-2"
+                : "grid gap-1.5 rounded-md border-[1.5px] border-input bg-card p-2 sm:grid-cols-2"
+            }
+          >
+            {options.map((o) => (
+              <li key={o.id}>
+                <label className="flex cursor-pointer items-center gap-3 rounded-sm px-2 py-2 text-sm hover:bg-paper has-checked:bg-mark/40">
+                  <input
+                    type="checkbox"
+                    checked={checked.has(o.id)}
+                    onChange={(e) => toggle(o.id, e.target.checked)}
+                    className="size-4 shrink-0 accent-foreground"
+                  />
+                  <span className="min-w-0 break-words">{o.label}</span>
+                </label>
+              </li>
+            ))}
+          </ul>
           <p className="text-xs text-muted-foreground">
-            A turma ainda não tem lista de alunos, e tudo bem: cada aluno entra com nome e número e
-            já fica cadastrado na turma. Recomendamos exigir o código de acesso, para só entrar quem
-            está na sala.
+            Cada turma marcada recebe o próprio link, código de acesso e lista de notas.
           </p>
-        ) : null}
-        {classInfo?.empty && !classInfo.selfEnroll ? (
-          <p className="text-xs text-pen">
-            Esta turma está com a lista fechada e ainda não tem alunos: ninguém conseguirá entrar na
-            prova.{" "}
-            <Link href={`/painel/turmas/${classInfo.id}`} className="underline underline-offset-2">
-              Cadastrar alunos ou abrir a lista
-            </Link>
-          </p>
-        ) : null}
-      </div>
+          {targetError ? <p className="text-xs text-destructive">{targetError}</p> : null}
+        </fieldset>
+      ) : (
+        <div className="grid gap-2">
+          <Label htmlFor={`${ids}-target`}>Prova</Label>
+          <select
+            id={`${ids}-target`}
+            value={targetId}
+            onChange={(e) => pick(e.target.value)}
+            aria-invalid={targetError ? true : undefined}
+            className="h-10 rounded-md border-[1.5px] border-input bg-card px-3 text-sm outline-none focus-visible:ring-4 focus-visible:ring-ring aria-invalid:border-destructive"
+          >
+            <option value="">Escolha a prova</option>
+            {options.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          {targetError ? <p className="text-xs text-destructive">{targetError}</p> : null}
+        </div>
+      )}
+
+      {emptyOpen.length > 0 ? (
+        <p className="-mt-3 text-xs text-muted-foreground">
+          {emptyOpen.length === 1 && chosenClasses.length === 1
+            ? "A turma ainda não tem lista de alunos"
+            : "Algumas turmas ainda não têm lista de alunos"}
+          , e tudo bem: cada aluno entra com nome e número e já fica cadastrado na turma.
+          Recomendamos exigir o código de acesso, para só entrar quem está na sala.
+        </p>
+      ) : null}
+      {emptyClosed.length > 0 ? (
+        <p className="-mt-3 text-xs text-pen">
+          {emptyClosed.length === 1
+            ? "Uma turma marcada está com a lista fechada e ainda não tem alunos: ninguém conseguirá entrar na prova nela. "
+            : `${emptyClosed.length} turmas marcadas estão com a lista fechada e sem alunos: ninguém conseguirá entrar nelas. `}
+          <Link
+            href={`/painel/turmas/${emptyClosed[0].id}`}
+            className="underline underline-offset-2"
+          >
+            Cadastrar alunos ou abrir a lista
+          </Link>
+        </p>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
@@ -232,9 +308,9 @@ function AssignmentFormBody({
       <FormMessage type="error" message={formError} />
 
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" size="lg" disabled={pending || !targetId}>
+        <Button type="submit" size="lg" disabled={pending || count === 0}>
           {pending ? <LoaderCircle className="animate-spin" aria-hidden /> : null}
-          Aplicar e gerar link
+          {count > 1 ? `Aplicar em ${count} turmas e gerar links` : "Aplicar e gerar link"}
         </Button>
         <Link href={cancelHref} className={buttonVariants({ variant: "outline", size: "lg" })}>
           Cancelar

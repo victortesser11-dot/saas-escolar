@@ -44,11 +44,27 @@ export async function grantRelease(
   return { ok: true };
 }
 
-export async function finalizeAttemptByTeacher(attemptId: string): Promise<void> {
-  if (!isUuid(attemptId)) return;
+/** Valida (finaliza) a tentativa com as respostas já salvas pelo aluno. */
+export async function finalizeAttemptByTeacher(
+  attemptId: string,
+): Promise<{ ok: boolean; message?: string }> {
+  if (!isUuid(attemptId)) return { ok: false, message: "Tentativa inválida." };
   const supabase = await createClient();
-  await supabase.rpc("teacher_finalize_attempt", { p_attempt_id: attemptId });
+  const { data, error } = await supabase.rpc("teacher_finalize_attempt", {
+    p_attempt_id: attemptId,
+  });
+  const result = (data ?? {}) as { ok?: boolean; error?: string };
+  if (error || !result.ok) {
+    return {
+      ok: false,
+      message:
+        result.error === "already_finalized"
+          ? "Esta prova já foi finalizada. Atualize a página."
+          : "Não foi possível validar agora. Tente de novo.",
+    };
+  }
   refresh();
+  return { ok: true };
 }
 
 export async function gradeAnswer(

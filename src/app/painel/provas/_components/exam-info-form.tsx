@@ -17,7 +17,13 @@ export function ExamInfoForm({
   subjects,
 }: {
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
-  defaults: { title: string; subject: string; description: string; instructions: string };
+  defaults: {
+    title: string;
+    subject: string;
+    period: string;
+    description: string;
+    instructions: string;
+  };
   submitLabel: string;
   /** Disciplinas já usadas pelo professor (sugestões). */
   subjects: string[];
@@ -39,23 +45,35 @@ export function ExamInfoForm({
         defaultValue={values.title}
         error={state.fieldErrors?.title}
       />
-      <div className="grid max-w-sm gap-2">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <FormField
+            name="subject"
+            label="Disciplina"
+            placeholder="Ex.: Matemática"
+            maxLength={SUBJECT_NAME_MAX}
+            autoComplete="off"
+            list={`${ids}-subjects`}
+            hint="Opcional. Separa as provas e o boletim de cada turma por disciplina."
+            defaultValue={values.subject}
+            error={state.fieldErrors?.subject}
+          />
+          <datalist id={`${ids}-subjects`}>
+            {subjects.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+        </div>
         <FormField
-          name="subject"
-          label="Disciplina"
-          placeholder="Ex.: Matemática"
-          maxLength={SUBJECT_NAME_MAX}
+          name="period"
+          label="Período"
+          placeholder="Ex.: 1º trimestre"
+          maxLength={40}
           autoComplete="off"
-          list={`${ids}-subjects`}
-          hint="Opcional. Separa as provas e o boletim de cada turma por disciplina."
-          defaultValue={values.subject}
-          error={state.fieldErrors?.subject}
+          hint="Opcional. Aparece para o aluno junto com o nome da prova."
+          defaultValue={(values as { period?: string }).period ?? ""}
+          error={state.fieldErrors?.period}
         />
-        <datalist id={`${ids}-subjects`}>
-          {subjects.map((name) => (
-            <option key={name} value={name} />
-          ))}
-        </datalist>
       </div>
       <div className="grid gap-2">
         <Label htmlFor={`${ids}-instructions`}>

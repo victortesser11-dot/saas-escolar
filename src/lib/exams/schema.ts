@@ -21,6 +21,12 @@ export const examInfoSchema = z.object({
         .min(1, { error: "Dê um nome para a prova." })
         .max(120, { error: "O nome pode ter no máximo 120 caracteres." }),
     ),
+  period: z
+    .string()
+    .optional()
+    .transform((value) => (value ?? "").replace(/\s+/g, " ").trim())
+    .pipe(z.string().max(40, { error: "O período pode ter no máximo 40 caracteres." }))
+    .transform((value) => (value === "" ? null : value)),
   description: optionalText(2000, "A descrição"),
   instructions: optionalText(5000, "As instruções"),
 });

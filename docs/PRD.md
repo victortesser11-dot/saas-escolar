@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versão | 0.6 |
+| Versão | 0.7 |
 | Data | 2026-11-17 |
 | Status | Aprovado — em desenvolvimento (Etapa 1) |
 | Fontes | [`PROMPT_01.md`](./PROMPT_01.md) · Complemento "Regras de funcionamento das provas" (Etapa 2) |
@@ -160,6 +160,9 @@ Escola
 - RF-58 **Disciplinas dentro da turma**: a turma tem várias disciplinas (ex.: 7º B com Matemática e Ciências), sem duplicar turma nem alunos. A prova tem uma disciplina; aplicá-la inclui a disciplina na turma. Provas e boletim da turma ficam separados por disciplina.
 - RF-59 **Cadastro do aluno pela prova**: a lista da turma deixa de ser obrigatória. O aluno informa nome e número na turma; se o número não estiver na lista, ele é incluído e marcado como "entrou pela prova" para conferência do professor. Número já usado com outro primeiro nome é recusado. O professor pode **fechar a lista** por turma.
 - RF-61 **Importar prova por planilha**: o professor baixa um modelo (CSV), escreve uma questão por linha (tipo, enunciado, alternativas A–J, correta, valor, explicação) e envia na página da prova. Prévia com erros por linha; as questões válidas entram de uma vez (tudo ou nada) e também vão para o banco de questões.
+- RF-62 **Validação manual de prova interrompida**: o professor vê as respostas salvas e clica em "Validar prova"; a tentativa é finalizada só com o que foi salvo (nada é criado ou alterado), a nota é calculada e o histórico registra quem validou e quando. Disponível mesmo com retomada liberada.
+- RF-63 **Identificação da prova para o aluno**: nome da prova em destaque, disciplina, período (campo opcional da prova, ex.: "1º trimestre"), turma e professor(a).
+- RF-64 **Aplicar em várias turmas de uma vez**: o professor marca as turmas; cada uma recebe link, código, alunos e notas próprios; a página da prova mostra a tabela de links e códigos com cópia individual e "Copiar todos".
 - RF-60 O número do aluno é único **por turma** (antes, a matrícula era única no espaço do professor). Números só com dígitos ignoram zeros à esquerda ("07" = "7").
 
 ### 5.8 Dashboard de notas (pedido de 2026-11-17)
@@ -349,3 +352,4 @@ Decididas em 2026-11-17 (o responsável pelo produto aprovou as propostas técni
 | 0.4 | 2026-11-17 | Fluxo "prova primeiro": questões escritas dentro da prova (banco automático por trás); prova aplicada em várias turmas, cada uma com link, período e código próprios (seção 4.1). |
 | 0.5 | 2026-11-17 | Dashboard de notas por prova e turma, boletim da turma e visão geral (RF-53 a RF-57). |
 | 0.6 | 2026-11-23 | Retorno do piloto: disciplinas dentro da turma, cadastro do aluno pela prova e número único por turma (RF-58 a RF-60; Q-06 revista) e importação de prova por planilha (RF-61). |
+| 0.7 | 2026-11-25 | Número opcional (nome completo), validação manual de prova interrompida, identificação da prova para o aluno e aplicação em várias turmas (RF-62 a RF-64). |

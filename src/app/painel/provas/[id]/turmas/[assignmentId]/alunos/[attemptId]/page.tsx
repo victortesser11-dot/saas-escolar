@@ -10,6 +10,7 @@ import { formatPoints } from "@/lib/questions/points";
 import { questionTypeInfo } from "@/lib/questions/types";
 import { getAttemptDetail, type AttemptAnswer } from "@/lib/results/queries";
 import { cn } from "@/lib/utils";
+import { ValidateAttempt } from "../../validate-attempt";
 import { GradeForm } from "./grade-form";
 
 type Props = PageProps<"/painel/provas/[id]/turmas/[assignmentId]/alunos/[attemptId]">;
@@ -24,7 +25,26 @@ const EVENT_LABEL: Record<string, string> = {
   release_granted: "Professor liberou",
   graded: "Correção do professor",
   entry_failed: "Tentativa de entrada recusada",
+  self_enrolled: "Entrou na turma pela prova",
+  validated: "Prova validada manualmente",
 };
+
+/** Texto de um evento do histórico (a validação mostra quem validou e o que foi aproveitado). */
+function eventLabel(event: { type: string; payload: unknown }) {
+  const base = EVENT_LABEL[event.type] ?? event.type;
+  if (event.type !== "validated") return base;
+  const p = (event.payload ?? {}) as {
+    by_name?: string;
+    answers_saved?: number;
+    questions?: number;
+  };
+  const who = p.by_name ? ` por ${p.by_name}` : "";
+  const what =
+    typeof p.answers_saved === "number" && typeof p.questions === "number"
+      ? ` (${p.answers_saved} de ${p.questions} respostas salvas)`
+      : "";
+  return `${base}${who}${what}`;
+}
 
 export default function AttemptPage({ params }: Props) {
   return (
@@ -45,6 +65,10 @@ async function Content({ params }: Pick<Props, "params">) {
     attempt.status === "expired" ||
     attempt.status === "superseded";
   const pendingCount = answers.filter((a) => a.needsReview).length;
+  const savedCount = answers.filter(
+    (a) => a.options.some((o) => o.chosen) || (a.textAnswer ?? "").trim() !== "",
+  ).length;
+  const interrupted = attempt.status === "interrupted";
 
   return (
     <div className="grid grid-cols-1 gap-8">
@@ -59,6 +83,20 @@ async function Content({ params }: Pick<Props, "params">) {
           .join(" · ")}
         title={attempt.studentName}
       />
+
+      {interrupted || attempt.status === "in_progress" ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border-[1.5px] border-dashed border-pen/60 bg-pen/5 px-4 py-3">
+          <p className="max-w-xl text-sm">
+            <strong>{interrupted ? "Prova interrompida." : "Prova em andamento."}</strong> O aluno
+            salvou {savedCount} de {answers.length}{" "}
+            {answers.length === 1 ? "resposta" : "respostas"}, mostradas abaixo.{" "}
+            {interrupted
+              ? "Se ele não for continuar, valide a prova para calcular a nota com o que foi salvo."
+              : null}
+          </p>
+          <ValidateAttempt attemptId={attempt.id} interrupted={interrupted} size="default" />
+        </div>
+      ) : null}
 
       <div className="bg-graph flex flex-wrap items-center justify-between gap-4 rounded-md border-[1.5px] border-foreground p-4">
         <div className="grid gap-1">
@@ -113,7 +151,7 @@ async function Content({ params }: Pick<Props, "params">) {
                 <span className="font-mono text-xs text-muted-foreground">
                   <LocalDateTime iso={event.created_at} />
                 </span>
-                <span>{EVENT_LABEL[event.type] ?? event.type}</span>
+                <span>{eventLabel(event)}</span>
               </li>
             ))}
           </ol>

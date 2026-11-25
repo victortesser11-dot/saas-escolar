@@ -23,13 +23,14 @@ async function EditExamContent({ params }: Pick<Props, "params">) {
       <title>{`Editar ${exam.title} · Avaliações Escolares`}</title>
       <PageHeader
         back={{ href: `/painel/provas/${exam.id}`, label: exam.title }}
-        title="Nome, disciplina e instruções"
+        title="Nome, disciplina, período e instruções"
       />
       <ExamInfoForm
         action={updateExamInfo.bind(null, exam.id)}
         defaults={{
           title: exam.title,
           subject: exam.subject?.name ?? "",
+          period: exam.period ?? "",
           description: exam.description ?? "",
           instructions: exam.instructions ?? "",
         }}

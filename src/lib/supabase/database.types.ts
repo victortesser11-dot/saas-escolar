@@ -259,14 +259,14 @@ isOneToOne: false
                   ]
                 },"exams": {
                   Row: {
-                    "created_at": string,"description": string | null,"id": string,"instructions": string | null,"owner_id": string | null,"published_at": string | null,"questions_per_attempt": number | null,"result_visibility": Database["public"]['Enums']["result_visibility"],"shuffle_options": boolean,"shuffle_questions": boolean,"status": Database["public"]['Enums']["exam_status"],"subject_id": string | null,"time_limit_minutes": number | null,"title": string,"updated_at": string,"workspace_id": string
+                    "created_at": string,"description": string | null,"id": string,"instructions": string | null,"owner_id": string | null,"period": string | null,"published_at": string | null,"questions_per_attempt": number | null,"result_visibility": Database["public"]['Enums']["result_visibility"],"shuffle_options": boolean,"shuffle_questions": boolean,"status": Database["public"]['Enums']["exam_status"],"subject_id": string | null,"time_limit_minutes": number | null,"title": string,"updated_at": string,"workspace_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title": string,"updated_at"?: string,"workspace_id": string
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"period"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title": string,"updated_at"?: string,"workspace_id": string
                   }
                   Update: {
-                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title"?: string,"updated_at"?: string,"workspace_id"?: string
+                    "created_at"?: string,"description"?: string | null,"id"?: string,"instructions"?: string | null,"owner_id"?: string | null,"period"?: string | null,"published_at"?: string | null,"questions_per_attempt"?: number | null,"result_visibility"?: Database["public"]['Enums']["result_visibility"],"shuffle_options"?: boolean,"shuffle_questions"?: boolean,"status"?: Database["public"]['Enums']["exam_status"],"subject_id"?: string | null,"time_limit_minutes"?: number | null,"title"?: string,"updated_at"?: string,"workspace_id"?: string
                   }
                   Relationships: [
                     {
